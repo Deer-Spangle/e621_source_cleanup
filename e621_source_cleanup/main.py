@@ -1,6 +1,7 @@
 import csv
 import glob
 import gzip
+import os
 import re
 import shutil
 import sys
@@ -68,6 +69,7 @@ def scan_csv(csv_path: str, checks: List[BaseCheck]) -> None:
 
 
 def fetch_db_dump_path() -> str:
+    os.makedirs(DB_DUMP_DIR, exists_ok=True)
     files = glob.glob(f"{DB_DUMP_DIR}/*.csv")
     if files:
         return sorted(files)[-1]
