@@ -17,12 +17,13 @@ class SourceURL:
         if "://" in source_link:
             protocol, source_link = source_link.split("://", 1)
         domain = None
+        path = None
         if "/" in source_link:
-            domain, source_link = source_link.split("/", 1)
+            domain, path = source_link.split("/", 1)
         return SourceURL(
             protocol,
             domain,
-            source_link,
+            path,
             raw
         )
 
