@@ -23,7 +23,7 @@ class TwitFixCheck(URLCheck):
                 post_id,
                 source_url.raw,
                 f"https://twitter.com/{source_url.path}",
-                self.__class__,
+                self,
                 f"TwitFix domain {source_domain} changed to direct twitter link"
             )
 
@@ -46,6 +46,6 @@ class TwitterTracking(TwitFixCheck):
             post_id,
             source_url.raw,
             f"https://twitter.com/{cleaned_path}",
-            self.__class__,
+            self,
             "Twitter link had tracking info attached"
         )

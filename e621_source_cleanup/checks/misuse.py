@@ -1,5 +1,4 @@
-import string
-from typing import List, Optional
+from typing import Optional
 
 from e621_source_cleanup.checks.base import SourceMatch, StringCheck
 
@@ -17,7 +16,7 @@ class CommaCheck(StringCheck):
             post_id,
             source,
             None,
-            self.__class__,
+            self,
             "Having a comma in the source indicates it's probably formatted wrong"
         )
 
@@ -39,7 +38,7 @@ class TagsCheck(StringCheck):
             post_id,
             source,
             None,
-            self.__class__,
+            self,
             "Looks like this source might be a list of tags?"
         )
 
@@ -55,6 +54,6 @@ class TextCheck(StringCheck):
             post_id,
             source,
             None,
-            self.__class__,
+            self,
             "Seems like this source is just a message, maybe?"
         )

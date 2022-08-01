@@ -41,7 +41,7 @@ class SourceMatch:
     post_id: str
     source: str
     replacement: Optional[str]
-    check: Type["BaseCheck"]
+    check: "BaseCheck"
     reason: str
 
 

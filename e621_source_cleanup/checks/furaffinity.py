@@ -12,6 +12,6 @@ class CommentsLink(URLCheck):
                 post_id,
                 source_url.raw,
                 f"https://furaffinity.net/{cleaned_path}",
-                self.__class__,
+                self,
                 "FA link was to a specific comment"
             )
