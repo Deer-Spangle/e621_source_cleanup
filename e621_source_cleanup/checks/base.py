@@ -10,6 +10,14 @@ class SourceURL:
     path: Optional[str]
     raw: str
 
+    @property
+    def domain_clean(self) -> Optional[str]:
+        if not self.domain:
+            return None
+        if self.domain.startswith("www."):
+            return self.domain[4:]
+        return self.domain
+
     @classmethod
     def decompose_source(cls, source_link: str) -> Optional["SourceURL"]:
         raw = source_link
