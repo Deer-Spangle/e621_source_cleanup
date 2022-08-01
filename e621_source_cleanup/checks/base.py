@@ -57,9 +57,17 @@ class SourceMatch:
 
 class BaseCheck(ABC):
 
+    @property
+    def name(self) -> str:
+        _, module = self.__class__.__module__.rsplit(".", 1)
+        return f"{module}.{self.__class__.__name__}"
+
     @abstractmethod
     def matches(self, source_list: List[str], post_id: str) -> Optional[List[SourceMatch]]:
         pass
+
+    def report(self) -> Optional[str]:
+        return None
 
 
 class StringCheck(BaseCheck):
