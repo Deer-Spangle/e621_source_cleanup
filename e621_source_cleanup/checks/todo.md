@@ -1,3 +1,2 @@
 - Remove email addresses?
-- Old FA cdn links
 - Fix spaces in URLs

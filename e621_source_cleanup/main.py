@@ -10,7 +10,7 @@ import requests
 import tqdm
 
 from e621_source_cleanup.checks.base import BaseCheck
-from e621_source_cleanup.checks.furaffinity import CommentsLink
+from e621_source_cleanup.checks.furaffinity import CommentsLink, OldCDN
 from e621_source_cleanup.checks.misuse import CommaCheck, TagsCheck, TextCheck
 from e621_source_cleanup.checks.protocols import MissingProtocol, BrokenProtocols, UnknownProtocol, InsecureProtocol
 from e621_source_cleanup.checks.twitfix import TwitFixCheck
@@ -87,6 +87,7 @@ if __name__ == "__main__":
         TwitterTracking(),
         CommentsLink(),
         CommaCheck(),
+        OldCDN(),
         TagsCheck(),
         TextCheck(),
         MissingProtocol(),

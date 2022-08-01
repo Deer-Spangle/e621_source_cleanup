@@ -15,3 +15,24 @@ class CommentsLink(URLCheck):
                 self,
                 "FA link was to a specific comment"
             )
+
+
+class OldCDN(URLCheck):
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.old_cdn_urls = {
+            "d.facdn.net",
+            "d2.facdn.net"
+        }
+
+    def matches_url(self, source_url: SourceURL, post_id: str) -> Optional[SourceMatch]:
+        if source_url.domain not in self.old_cdn_urls:
+            return None
+        return SourceMatch(
+            post_id,
+            source_url.raw,
+            f"https://d.furaffinity.net/{source_url.path}",
+            self,
+            "FA direct image link using old CDN URL"
+        )
