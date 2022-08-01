@@ -94,7 +94,7 @@ def generate_report(csv_path: str, checks: List[BaseCheck], match_dict: Dict[str
     for chk, match_count in check_counter.most_common():
         solvable = len(by_check[chk]["auto"])
         percent = solvable / match_count * 100
-        print(f"- {chk.name}: Total: {match_count}. Solvable: {solvable} ({percent:02f}%)")
+        print(f"- {chk.name}: Total: {match_count}. Solvable: {solvable} ({percent:.2f}%)")
     # Print total errors, total solvable
     print(f"Total errors: {sum(len(by_check[chk]['total']) for chk in checks)}")
     print(f"Total solvable errors: {sum(len(by_check[chk]['auto']) for chk in checks)}")
