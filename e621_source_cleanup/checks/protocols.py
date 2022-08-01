@@ -6,17 +6,27 @@ from e621_source_cleanup.checks.base import SourceMatch, SourceURL, URLCheck
 class MissingProtocol(URLCheck):
 
     def __init__(self):
+        self.known_domains = {
+            "furaffinity.net": "https://",
+            "t.me": "https://",
+            "twitter.com": "https://",
+            "patreon.com": "https://",
+        }
         self.report_domains = []
 
     def matches_url(self, source_url: SourceURL, post_id: str) -> Optional[SourceMatch]:
         if not source_url.domain:
             return None
         if not source_url.protocol:
-            self.report_domains.append(source_url.domain_clean)
+            fix_url = None
+            if protocol := self.known_domains.get(source_url.domain_clean):
+                fix_url = protocol + source_url.raw
+            else:
+                self.report_domains.append(source_url.domain_clean)
             return SourceMatch(
                 post_id,
                 source_url.raw,
-                None,
+                fix_url,
                 self,
                 "No protocol specified on link"
             )
