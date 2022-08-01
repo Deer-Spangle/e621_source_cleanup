@@ -1,6 +1,6 @@
 from typing import Optional
 
-from e621_source_cleanup.checks.base import URLCheck, SourceURL, SourceMatch
+from e621_source_cleanup.checks.base import URLCheck, SourceURL, SourceMatch, BaseCheck
 
 
 class CommentsLink(URLCheck):
@@ -36,3 +36,26 @@ class OldCDN(URLCheck):
             self,
             "FA direct image link using old CDN URL"
         )
+
+
+class UserLinkWithoutSubmission(BaseCheck):
+
+    def matches(self, source_list: List[str], post_id: str) -> Optional[List[SourceMatch]]:
+        fa_user_source = None
+        has_fa_submission_source = False
+        for source in source_list:
+            source_url = SourceURL.decompose_source(source)
+            if source_url.domain_clean is not "furaffinity.net":
+                continue
+            if any(source_url.path.startswith(prefix) for prefix in ["user/", "gallery/", "scraps/"]):
+                fa_user_source = source_url.raw
+            if source_url.path.startswith("view/"):
+                has_fa_submission_source = True
+        if fa_user_source is not None and not has_fa_submission_source:
+            return SourceMatch(
+                post_id,
+                fa_user_source,
+                None,
+                self,
+                "Post has a link to an FA user, but not a link to the specific submission"
+            )
