@@ -57,3 +57,22 @@ class TextCheck(StringCheck):
             self,
             "Seems like this source is just a message, maybe?"
         )
+
+class EmailCheck(StringCheck):
+
+    def matches_str(self, source: str, post_id: str) -> Optional[SourceMatch]:
+        if "@" in source:
+            return SourceMatch(
+                post_id,
+                source,
+                None,
+                self,
+                "Email address listed in sources, alongside non-email sources"
+            )
+        return None
+
+    def matches(self, source_list: List[str], post_id: str) -> Optional[List[SourceMatch]]:
+        matches = super().matches(source_list, post_id)
+        if matches and len(source_list) > len(matches):
+            return matches
+        return []
