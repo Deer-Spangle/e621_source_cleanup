@@ -70,7 +70,7 @@ class UserLinkWithoutSubmission(BaseCheck):
         has_fa_submission_source = False
         for source in source_list:
             source_url = SourceURL.decompose_source(source)
-            if source_url.domain_clean is not "furaffinity.net":
+            if source_url.domain_clean != "furaffinity.net":
                 continue
             if any(source_url.path.startswith(prefix) for prefix in ["user/", "gallery/", "scraps/"]):
                 fa_user_source = source_url.raw
@@ -102,7 +102,7 @@ class DirectLinkWithoutSubmission(BaseCheck):
         has_fa_submission_source = False
         for source in source_list:
             source_url = SourceURL.decompose_source(source)
-            if source_url.domain_clean is "furaffinity.net" and source_url.path.startswith("view/"):
+            if source_url.domain_clean == "furaffinity.net" and source_url.path.startswith("view/"):
                 has_fa_submission_source = True
             if source_url.domain in self.cdn_domains:
                 fa_direct_link = source_url.raw
