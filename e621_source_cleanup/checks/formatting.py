@@ -8,6 +8,8 @@ class SpacesInURL(URLCheck):
     def matches_url(self, source_url: SourceURL, post_id: str) -> Optional[SourceMatch]:
         if " " not in source_url.path:
             return None
+        if "." not in source_url.domain:
+            return None
         path = source_url.path
         if "?" in source_url.path:
             path, data = source_url.path.split("?", 1)
