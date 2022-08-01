@@ -43,10 +43,13 @@ def scan_csv(csv_path: str, checks: List[BaseCheck]) -> None:
             if not sources.strip():
                 continue
             source_list = [s.strip() for s in sources.strip().split("\n")]
+            all_matches = []
             for check in checks:
-                if match := check.matches(source_list, post_id):
-                    print(f"Found a source match: {match}")
-                    return
+                if matches := check.matches(source_list, post_id):
+                    all_matches.extend(matches)
+            if all_matches:
+                print(f"Found {len(all_matches)} source match: {all_matches}")
+                return
 
 
 def fetch_db_dump_path() -> str:
