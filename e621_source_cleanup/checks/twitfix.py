@@ -1,9 +1,9 @@
-from typing import List, Optional
+from typing import Optional
 
-from e621_source_cleanup.checks.base import BaseCheck, SourceURL, SourceMatch
+from e621_source_cleanup.checks.base import SourceURL, SourceMatch, URLCheck
 
 
-class TwitFixCheck(BaseCheck):
+class TwitFixCheck(URLCheck):
     def __init__(self):
         self.twitfix_domains = [
             "vxtwitter.com",
@@ -14,16 +14,15 @@ class TwitFixCheck(BaseCheck):
             "twittpr.com",
         ]
 
-    def matches(self, source_list: List[str], post_id: str) -> Optional[SourceMatch]:
-        for source in source_list:
-            source_url = SourceURL.decompose_source(source)
-            source_domain = source_url.domain.removeprefix("www.")
-            if source_domain in self.twitfix_domains:
-                return SourceMatch(
-                    post_id,
-                    source,
-                    f"https://twitter.com/{source_url.path}",
-                    self.__class__,
-                    f"Twitfix domain {source_domain} changed to direct twitter link"
-                )
-        return None
+    def matches_url(self, source_url: SourceURL, post_id: str) -> Optional[SourceMatch]:
+        source_domain = source_url.domain_clean
+        if source_domain is None:
+            return None
+        if source_domain in self.twitfix_domains:
+            return SourceMatch(
+                post_id,
+                source_url.raw,
+                f"https://twitter.com/{source_url.path}",
+                self.__class__,
+                f"TwitFix domain {source_domain} changed to direct twitter link"
+            )
