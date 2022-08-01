@@ -88,6 +88,14 @@ class UnknownProtocol(URLCheck):
         for protocol in self.protocols:
             self.broken_protocols.update([protocol[n:] for n in range(len(protocol))])
         self.all_protocols = self.protocols.union(self.broken_protocols)
+        self.fixes = {
+            "Https": "https",
+            "-https": "https",
+            "Http": "http",
+            "Twitter:https": "https",
+            "Insta:https": "https",
+            "https:https": "https",
+        }
         self.report_protocols = []
 
     def matches_url(self, source_url: SourceURL, post_id: str) -> Optional[SourceMatch]:
@@ -117,6 +125,12 @@ class InsecureProtocol(URLCheck):
             "furaffinity.net",
             "weasyl.com",
             "twitter.com",
+            "d.facdn.net",
+            "pixiv.net",
+            "g.e-hentai.org",
+            "hentai-foundry.com",
+            "rule34.paheal.net",
+            "i.imgur.com"
         }
         self.report_domains = []
 
