@@ -68,8 +68,14 @@ def scan_csv(csv_path: str, checks: List[BaseCheck]) -> Dict[str, List[SourceMat
             if all_matches:
                 match_dict[post_id] = all_matches
                 # print(f"Found {len(all_matches)} source match: {all_matches}")
+    return match_dict
+
+
+def generate_report(csv_path: str, checks: List[BaseCheck], match_dict: Dict[str, List[SourceMatch]]) -> None:
+    total_lines = csv_line_count(csv_path)
     print(f"There are {total_lines} posts in the dataset")
     print(f"{len(match_dict)} posts have sources matching at least one check")
+    # Build by_check dict
     by_check = {
         chk: {
             "total": [],
@@ -82,6 +88,7 @@ def scan_csv(csv_path: str, checks: List[BaseCheck]) -> Dict[str, List[SourceMat
             by_check[match.check]["total"].append(match)
             if match.replacement:
                 by_check[match.check]["auto"].append(match)
+    # Print totals by check
     print("Total by check")
     check_counter = Counter({chk: len(matches["total"]) for chk, matches in by_check.items()})
     for chk, match_count in check_counter.most_common():
@@ -93,7 +100,6 @@ def scan_csv(csv_path: str, checks: List[BaseCheck]) -> Dict[str, List[SourceMat
     }
     with open(f"{csv_path}.results.json", "w") as f:
         json.dump(json_data, f, indent=2)
-    return match_dict
 
 
 def fetch_db_dump_path() -> str:
@@ -141,4 +147,6 @@ if __name__ == "__main__":
         InsecureProtocol(),
         SpacesInURL(),
     ]
-    scan_csv(path, checkers)
+    match_result = scan_csv(path, checkers)
+    generate_report(path, checkers, match_result)
+
