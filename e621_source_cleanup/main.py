@@ -12,6 +12,7 @@ import tqdm
 from e621_source_cleanup.checks.base import BaseCheck
 from e621_source_cleanup.checks.furaffinity import CommentsLink
 from e621_source_cleanup.checks.misuse import CommaCheck, TagsCheck, TextCheck
+from e621_source_cleanup.checks.protocols import MissingProtocol, BrokenProtocols, UnknownProtocol
 from e621_source_cleanup.checks.twitfix import TwitFixCheck
 
 from e621_source_cleanup.checks.twitter import TwitterTracking
@@ -88,5 +89,8 @@ if __name__ == "__main__":
         CommaCheck(),
         TagsCheck(),
         TextCheck(),
+        MissingProtocol(),
+        BrokenProtocols(),
+        UnknownProtocol(),
     ]
     scan_csv(path, checkers)
