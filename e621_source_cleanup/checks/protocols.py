@@ -14,13 +14,23 @@ class MissingProtocol(URLCheck):
         }
         self.report_domains = []
 
+    def protocol_for_domain(self, domain: str) -> Optional[str]:
+        if domain.endswith(".tumblr.com"):
+            return "https://"
+        if domain.endswith(".deviantart.com"):
+            return "https://"
+        if domain in self.known_domains:
+            return self.known_domains[domain]
+        return None
+
     def matches_url(self, source_url: SourceURL, post_id: str) -> Optional[SourceMatch]:
         if not source_url.domain:
             return None
         if not source_url.protocol:
             fix_url = None
-            if protocol := self.known_domains.get(source_url.domain_clean):
-                fix_url = protocol + source_url.raw
+            fix_protocol = self.protocol_for_domain(source_url.domain_clean)
+            if fix_protocol:
+                fix_url = fix_protocol + source_url.raw
             else:
                 self.report_domains.append(source_url.domain_clean)
             return SourceMatch(
@@ -109,13 +119,22 @@ class InsecureProtocol(URLCheck):
             "twitter.com",
         }
         self.report_domains = []
+
+    def is_secure_domain(self, domain: str) -> bool:
+        if domain in self.secure_domains:
+            return True
+        if domain.endswith(".tumblr.com"):
+            return True
+        if domain.endswith(".deviantart.com"):
+            return True
+        return False
     
     def matches_url(self, source_url: SourceURL, post_id: str) -> Optional[SourceMatch]:
         if not source_url.protocol:
             return None
         if source_url.protocol != "http":
             return None
-        if source_url.domain_clean in self.secure_domains:
+        if self.is_secure_domain(source_url.domain_clean):
             secure_url = f"https://{source_url.domain}/{source_url.path}"
             return SourceMatch(
                 post_id,
