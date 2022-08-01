@@ -52,10 +52,41 @@ class UserLinkWithoutSubmission(BaseCheck):
             if source_url.path.startswith("view/"):
                 has_fa_submission_source = True
         if fa_user_source is not None and not has_fa_submission_source:
-            return SourceMatch(
+            return [SourceMatch(
                 post_id,
                 fa_user_source,
                 None,
                 self,
                 "Post has a link to an FA user, but not a link to the specific submission"
-            )
+            )]
+        return []
+
+
+class DirectLinkWithoutSubmission(BaseCheck):
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.cdn_domains = {
+            "d.facdn.net",
+            "d2.facdn.net",
+            "d.furaffinity.net",
+        }
+
+    def matches(self, source_list: List[str], post_id: str) -> Optional[List[SourceMatch]]:
+        fa_direct_link = None
+        has_fa_submission_source = False
+        for source in source_list:
+            source_url = SourceURL.decompose_source(source)
+            if source_url.domain_clean is "furaffinity.net" and source_url.path.startswith("view/"):
+                has_fa_submission_source = True
+            if source_url.domain in self.cdn_domains:
+                fa_direct_link = source_url.raw
+        if fa_direct_link is not None and not has_fa_submission_source:
+            return [SourceMatch(
+                post_id,
+                fa_direct_link,
+                None,
+                self,
+                "Post has a direct link to an image on FA, but not to the submission page"
+            )]
+        return []

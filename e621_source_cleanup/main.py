@@ -11,7 +11,7 @@ import tqdm
 
 from e621_source_cleanup.checks.base import BaseCheck
 from e621_source_cleanup.checks.formatting import SpacesInURL
-from e621_source_cleanup.checks.furaffinity import CommentsLink, OldCDN, UserLinkWithoutSubmission
+from e621_source_cleanup.checks.furaffinity import CommentsLink, OldCDN, UserLinkWithoutSubmission, DirectLinkWithoutSubmission
 from e621_source_cleanup.checks.misuse import CommaCheck, TagsCheck, TextCheck, EmailCheck
 from e621_source_cleanup.checks.protocols import MissingProtocol, BrokenProtocols, UnknownProtocol, InsecureProtocol
 from e621_source_cleanup.checks.twitfix import TwitFixCheck
@@ -99,6 +99,7 @@ if __name__ == "__main__":
         CommaCheck(),
         OldCDN(),
         UserLinkWithoutSubmission(),
+        DirectLinkWithoutSubmission(),
         TagsCheck(),
         TextCheck(),
         EmailCheck(),
