@@ -26,3 +26,26 @@ class TwitFixCheck(URLCheck):
                 self.__class__,
                 f"TwitFix domain {source_domain} changed to direct twitter link"
             )
+
+
+class TwitterTracking(TwitFixCheck):
+
+    def __init__(self):
+        super().__init__()
+        self.twitter_urls = self.twitfix_domains + ["twitter.com"]
+
+    def matches_url(self, source_url: SourceURL, post_id: str) -> Optional[SourceMatch]:
+        if not source_url.path:
+            return None
+        if source_url.domain_clean not in self.twitter_urls:
+            return None
+        if "?" not in source_url.path:
+            return None
+        cleaned_path, _ = source_url.path.split("?", 1)
+        return SourceMatch(
+            post_id,
+            source_url.raw,
+            f"https://twitter.com/{cleaned_path}",
+            self.__class__,
+            "Twitter link had tracking info attached"
+        )

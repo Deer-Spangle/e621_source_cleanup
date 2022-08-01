@@ -14,6 +14,8 @@ from e621_source_cleanup.checks.furaffinity import CommentsLink
 from e621_source_cleanup.checks.misuse import CommaCheck, TagsCheck, TextCheck
 from e621_source_cleanup.checks.twitfix import TwitFixCheck
 
+from e621_source_cleanup.checks.twitter import TwitterTracking
+
 DB_DUMP_DIR = "db_export"
 
 
@@ -81,6 +83,7 @@ if __name__ == "__main__":
     path = fetch_db_dump_path()
     checkers = [
         TwitFixCheck(),
+        TwitterTracking(),
         CommentsLink(),
         CommaCheck(),
         TagsCheck(),
