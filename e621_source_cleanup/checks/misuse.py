@@ -78,3 +78,25 @@ class EmailCheck(StringCheck):
         if matches and len(source_list) > len(matches):
             return matches
         return []
+
+
+class LocalPath(StringCheck):
+
+    def matches_str(self, source: str, post_id: str) -> Optional[SourceMatch]:
+        if source.startswith("./"):
+            return SourceMatch(
+                post_id,
+                source,
+                None,
+                self,
+                "Source starts with \"./\", is it a local path?"
+            )
+        if source[1:3] in [":/", ":\\"] and source[0] in string.ascii_letters:
+            return SourceMatch(
+                post_id,
+                source,
+                None,
+                self,
+                "Source seems to start with windows drive address. Is it a local path?"
+            )
+        return None

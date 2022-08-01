@@ -13,7 +13,7 @@ import tqdm
 from e621_source_cleanup.checks.base import BaseCheck
 from e621_source_cleanup.checks.formatting import SpacesInURL
 from e621_source_cleanup.checks.furaffinity import CommentsLink, OldCDN, UserLinkWithoutSubmission, DirectLinkWithoutSubmission
-from e621_source_cleanup.checks.misuse import CommaCheck, TagsCheck, TextCheck, EmailCheck
+from e621_source_cleanup.checks.misuse import CommaCheck, TagsCheck, TextCheck, EmailCheck, LocalPath
 from e621_source_cleanup.checks.protocols import MissingProtocol, BrokenProtocols, UnknownProtocol, InsecureProtocol
 from e621_source_cleanup.checks.twitter import TwitFixCheck, TwitterTracking
 
@@ -67,7 +67,7 @@ def scan_csv(csv_path: str, checks: List[BaseCheck]) -> None:
 
 
 def fetch_db_dump_path() -> str:
-    os.makedirs(DB_DUMP_DIR, exists_ok=True)
+    os.makedirs(DB_DUMP_DIR, exist_ok=True)
     files = glob.glob(f"{DB_DUMP_DIR}/*.csv")
     if files:
         return sorted(files)[-1]
@@ -103,6 +103,7 @@ if __name__ == "__main__":
         TagsCheck(),
         TextCheck(),
         EmailCheck(),
+        LocalPath(),
         MissingProtocol(),
         BrokenProtocols(),
         UnknownProtocol(),
