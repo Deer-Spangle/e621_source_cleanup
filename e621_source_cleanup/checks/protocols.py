@@ -102,11 +102,15 @@ class UnknownProtocol(URLCheck):
         if not source_url.protocol:
             return None
         if source_url.protocol not in self.all_protocols:
-            self.report_protocols.append(source_url.protocol)
+            fix_url = None
+            if source_url.protocol in self.fixes:
+                fix_url = self.fixes[source_url.protocol] + f"://{source_url.domain}/{source_url.path}"
+            else:
+                self.report_protocols.append(source_url.protocol)
             return SourceMatch(
                 post_id,
                 source_url.raw,
-                None,
+                fix_url,
                 self,
                 f"Unknown protocol on URL: {source_url.protocol}"
             )
