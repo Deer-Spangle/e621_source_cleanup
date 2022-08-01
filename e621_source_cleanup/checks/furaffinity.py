@@ -18,16 +18,41 @@ class CommentsLink(URLCheck):
 
 
 class OldCDN(URLCheck):
+    """
+    These old FurAffinity CDN urls are still functional, but no longer the recommended way
+    """
 
     def __init__(self) -> None:
         super().__init__()
         self.old_cdn_urls = {
             "d.facdn.net",
-            "d2.facdn.net"
         }
 
     def matches_url(self, source_url: SourceURL, post_id: str) -> Optional[SourceMatch]:
         if source_url.domain not in self.old_cdn_urls:
+            return None
+        return SourceMatch(
+            post_id,
+            source_url.raw,
+            f"https://d.furaffinity.net/{source_url.path}",
+            self,
+            "FA direct image link using old CDN URL"
+        )
+
+
+class BrokenCDN(URLCheck):
+    """
+    These old FurAffinity CDN urls no longer work. They existed during the switchover between the old and new CDN
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.broken_cdn_urls = {
+            "d2.facdn.net",
+        }
+
+    def matches_url(self, source_url: SourceURL, post_id: str) -> Optional[SourceMatch]:
+        if source_url.domain not in self.broken_cdn_urls:
             return None
         return SourceMatch(
             post_id,
