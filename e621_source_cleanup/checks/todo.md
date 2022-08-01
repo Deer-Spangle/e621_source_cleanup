@@ -1,4 +1,3 @@
 - Remove email addresses?
 - Old FA cdn links
-- swap http to https
 - Fix spaces in URLs
