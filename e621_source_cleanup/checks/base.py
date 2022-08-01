@@ -28,6 +28,8 @@ class SourceURL:
         path = None
         if "/" in source_link:
             domain, path = source_link.split("/", 1)
+            if "." not in domain:
+                domain, path = None, None
         return SourceURL(
             protocol,
             domain,
