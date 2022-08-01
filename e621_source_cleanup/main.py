@@ -33,9 +33,18 @@ def setup_max_int() -> None:
 
 
 def csv_line_count(csv_path: str) -> int:
+    cache_file = csv_path + ".line_count"
+    try:
+        with open(cache_file, "r") as f:
+            return int(f.read())
+    except FileNotFoundError:
+        pass
     with open(csv_path, "r", encoding="utf-8") as f:
         reader = csv.reader(f)
-        return sum([1 for _ in tqdm.tqdm(reader)])
+        line_count = sum([1 for _ in tqdm.tqdm(reader)]) - 1  # Remove header line
+    with open(cache_file, "w") as f:
+        f.write(str(line_count))
+    return line_count
 
 
 def scan_csv(csv_path: str, checks: List[BaseCheck]) -> None:
