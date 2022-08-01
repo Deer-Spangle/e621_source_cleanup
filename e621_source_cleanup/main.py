@@ -16,7 +16,7 @@ from e621_source_cleanup.checks.base import BaseCheck, SourceMatch
 from e621_source_cleanup.checks.deviantart import OldFormatUserPage
 from e621_source_cleanup.checks.formatting import SpacesInURL
 from e621_source_cleanup.checks.furaffinity import CommentsLink, OldCDN, UserLinkWithoutSubmission, \
-    DirectLinkWithoutSubmission, BrokenCDN
+    DirectLinkWithoutSubmission, BrokenCDN, ThumbnailLink
 from e621_source_cleanup.checks.misuse import CommaCheck, TagsCheck, TextCheck, EmailCheck, LocalPath
 from e621_source_cleanup.checks.protocols import MissingProtocol, BrokenProtocols, UnknownProtocol, InsecureProtocol
 from e621_source_cleanup.checks.twitter import TwitFixCheck, TwitterTracking
@@ -149,6 +149,7 @@ if __name__ == "__main__":
         BrokenCDN(),
         UserLinkWithoutSubmission(),
         DirectLinkWithoutSubmission(),
+        ThumbnailLink(),
         TagsCheck(),
         TextCheck(),
         EmailCheck(),

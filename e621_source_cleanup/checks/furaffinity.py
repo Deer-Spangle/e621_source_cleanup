@@ -115,3 +115,17 @@ class DirectLinkWithoutSubmission(BaseCheck):
                 "Post has a direct link to an image on FA, but not to the submission page"
             )]
         return []
+
+
+class ThumbnailLink(URLCheck):
+
+    def matches_url(self, source_url: SourceURL, post_id: str) -> Optional[SourceMatch]:
+        if source_url.domain in ["t.furaffinity.net", "t.facdn.net", "t2.facdn.net"]:
+            return SourceMatch(
+                post_id,
+                source_url.raw,
+                None,
+                self,
+                "Furaffinity thumbnail link has been used, rather than direct link"
+            )
+        return None
