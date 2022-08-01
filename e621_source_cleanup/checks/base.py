@@ -1,6 +1,6 @@
 import dataclasses
 from abc import ABC, abstractmethod
-from typing import List, Optional, Type
+from typing import List, Optional, Dict, Any
 
 
 @dataclasses.dataclass
@@ -43,6 +43,16 @@ class SourceMatch:
     replacement: Optional[str]
     check: "BaseCheck"
     reason: str
+
+    def to_json(self) -> Dict[str, Any]:
+        return {
+            "post_id": self.post_id,
+            "source": self.source,
+            "replacement": self.replacement,
+            "check_module": self.check.__class__.__module__,
+            "check_class": self.check.__class__.__name__,
+            "reason": self.reason
+        }
 
 
 class BaseCheck(ABC):
