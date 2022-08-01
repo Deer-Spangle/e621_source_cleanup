@@ -10,6 +10,8 @@ import requests
 import tqdm
 
 from e621_source_cleanup.checks.base import BaseCheck
+from e621_source_cleanup.checks.furaffinity import CommentsLink
+from e621_source_cleanup.checks.misuse import CommaCheck, TagsCheck, TextCheck
 from e621_source_cleanup.checks.twitfix import TwitFixCheck
 
 DB_DUMP_DIR = "db_export"
@@ -78,6 +80,10 @@ if __name__ == "__main__":
     setup_max_int()
     path = fetch_db_dump_path()
     checkers = [
-        TwitFixCheck()
+        TwitFixCheck(),
+        CommentsLink(),
+        CommaCheck(),
+        TagsCheck(),
+        TextCheck(),
     ]
     scan_csv(path, checkers)
