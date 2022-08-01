@@ -36,6 +36,7 @@ def scan_csv(csv_path: str, checks: List[BaseCheck]) -> None:
     total_lines = csv_line_count(csv_path)
     with open(csv_path, "r", encoding="utf-8") as f:
         reader = csv.reader(f)
+        next(reader, None)
         for row in tqdm.tqdm(reader, desc="Checking sources", total=total_lines):
             post_id = row[0]
             sources = row[4]
