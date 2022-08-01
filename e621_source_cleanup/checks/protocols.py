@@ -1,13 +1,18 @@
-from typing import Optional, SupportsAbs
+from collections import Counter
+from typing import Optional
 from e621_source_cleanup.checks.base import SourceMatch, SourceURL, URLCheck
 
 
 class MissingProtocol(URLCheck):
 
+    def __init__(self):
+        self.report_domains = []
+
     def matches_url(self, source_url: SourceURL, post_id: str) -> Optional[SourceMatch]:
         if not source_url.domain:
             return None
         if not source_url.protocol:
+            self.report_domains.append(source_url.domain_clean)
             return SourceMatch(
                 post_id,
                 source_url.raw,
@@ -16,6 +21,10 @@ class MissingProtocol(URLCheck):
                 "No protocol specified on link"
             )
         return None
+
+    def report(self) -> Optional[str]:
+        counter = Counter(self.report_domains)
+        return "Domains without protocols seen: " + ", ".join(f"{domain}: {n}" for domain, n in counter.most_common())
 
 
 class BrokenProtocols(URLCheck):
@@ -59,11 +68,13 @@ class UnknownProtocol(URLCheck):
         for protocol in self.protocols:
             self.broken_protocols.update([protocol[n:] for n in range(len(protocol))])
         self.all_protocols = self.protocols.union(self.broken_protocols)
+        self.report_protocols = []
 
     def matches_url(self, source_url: SourceURL, post_id: str) -> Optional[SourceMatch]:
         if not source_url.protocol:
             return None
         if source_url.protocol not in self.all_protocols:
+            self.report_protocols.append(source_url.protocol)
             return SourceMatch(
                 post_id,
                 source_url.raw,
@@ -72,6 +83,10 @@ class UnknownProtocol(URLCheck):
                 f"Unknown protocol on URL: {source_url.protocol}"
             )
         return None
+
+    def report(self) -> Optional[str]:
+        counter = Counter(self.report_protocols)
+        return "Unknown protocols: " + ", ".join(f"{domain}: {count}" for domain, count in counter.most_common())
 
 
 class InsecureProtocol(URLCheck):
@@ -83,6 +98,7 @@ class InsecureProtocol(URLCheck):
             "weasyl.com",
             "twitter.com",
         }
+        self.report_domains = []
     
     def matches_url(self, source_url: SourceURL, post_id: str) -> Optional[SourceMatch]:
         if not source_url.protocol:
@@ -98,6 +114,7 @@ class InsecureProtocol(URLCheck):
                 self,
                 "Using http protocol in source URL when domain supports https"
             )
+        self.report_domains.append(source_url.domain_clean)
         return SourceMatch(
             post_id,
             source_url.raw,
@@ -105,3 +122,7 @@ class InsecureProtocol(URLCheck):
             self,
             "Using http protocol in URL, unknown if domain supports https"
         )
+
+    def report(self) -> Optional[str]:
+        counter = Counter(self.report_domains)
+        return "Other domains seen: " + ", ".join(f"{domain}: {count}" for domain, count in counter.most_common())
