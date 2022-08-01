@@ -1,16 +1,18 @@
 import csv
 import glob
 import gzip
+import json
 import os
 import re
 import shutil
 import sys
-from typing import List
+from collections import Counter
+from typing import List, Dict
 
 import requests
 import tqdm
 
-from e621_source_cleanup.checks.base import BaseCheck
+from e621_source_cleanup.checks.base import BaseCheck, SourceMatch
 from e621_source_cleanup.checks.formatting import SpacesInURL
 from e621_source_cleanup.checks.furaffinity import CommentsLink, OldCDN, UserLinkWithoutSubmission, \
     DirectLinkWithoutSubmission, BrokenCDN
@@ -47,8 +49,9 @@ def csv_line_count(csv_path: str) -> int:
     return line_count
 
 
-def scan_csv(csv_path: str, checks: List[BaseCheck]) -> None:
+def scan_csv(csv_path: str, checks: List[BaseCheck]) -> Dict[str, List[SourceMatch]]:
     total_lines = csv_line_count(csv_path)
+    match_dict = {}
     with open(csv_path, "r", encoding="utf-8") as f:
         reader = csv.reader(f)
         next(reader, None)
@@ -63,8 +66,34 @@ def scan_csv(csv_path: str, checks: List[BaseCheck]) -> None:
                 if matches := check.matches(source_list, post_id):
                     all_matches.extend(matches)
             if all_matches:
-                print(f"Found {len(all_matches)} source match: {all_matches}")
-                return
+                match_dict[post_id] = all_matches
+                # print(f"Found {len(all_matches)} source match: {all_matches}")
+    print(f"There are {total_lines} posts in the dataset")
+    print(f"{len(match_dict)} posts have sources matching at least one check")
+    by_check = {
+        chk: {
+            "total": [],
+            "auto": []
+        }
+        for chk in checks
+    }
+    for matches in match_dict.values():
+        for match in matches:
+            by_check[match.check]["total"].append(match)
+            if match.replacement:
+                by_check[match.check]["auto"].append(match)
+    print("Total by check")
+    check_counter = Counter({chk: len(matches["total"]) for chk, matches in by_check.items()})
+    for chk, match_count in check_counter.most_common():
+        check_name = f"{chk.__class__.__module__}.{chk.__class__.__name__}"
+        print(f"- {check_name}: Total: {match_count}. Solvable: {len(by_check[chk]['auto'])}")
+    json_data = {
+        post_id: [match.to_json() for match in matches]
+        for post_id, matches in match_dict.items()
+    }
+    with open(f"{csv_path}.results.json", "w") as f:
+        json.dump(json_data, f, indent=2)
+    return match_dict
 
 
 def fetch_db_dump_path() -> str:
