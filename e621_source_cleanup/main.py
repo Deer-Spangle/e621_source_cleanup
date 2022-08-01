@@ -14,7 +14,7 @@ import tqdm
 
 from e621_source_cleanup.checks.base import BaseCheck, SourceMatch
 from e621_source_cleanup.checks.deviantart import OldFormatUserPage
-from e621_source_cleanup.checks.formatting import SpacesInURL
+from e621_source_cleanup.checks.formatting import SpacesInURL, TitlecaseDomain
 from e621_source_cleanup.checks.furaffinity import CommentsLink, OldCDN, UserLinkWithoutSubmission, \
     DirectLinkWithoutSubmission, BrokenCDN, ThumbnailLink
 from e621_source_cleanup.checks.misuse import CommaCheck, TagsCheck, TextCheck, EmailCheck, LocalPath
@@ -159,6 +159,7 @@ if __name__ == "__main__":
         UnknownProtocol(),
         InsecureProtocol(),
         SpacesInURL(),
+        TitlecaseDomain(),
         OldFormatUserPage(),
     ]
     match_result = scan_csv(path, checkers)

@@ -23,3 +23,18 @@ class SpacesInURL(URLCheck):
             self,
             "URL has improperly encoded spaces in it"
         )
+
+
+class TitlecaseDomain(URLCheck):
+
+    def matches_url(self, source_url: SourceURL, post_id: str) -> Optional[SourceMatch]:
+        if source_url.domain in [source_url.domain.title(), source_url.domain.capitalize()]:
+            fix_url = f"{source_url.protocol}://{source_url.domain.lower()}/{source_url.path}"
+            return SourceMatch(
+                post_id,
+                source_url.raw,
+                fix_url,
+                self,
+                "The first letter of the source URL is capitalised, probably due to a phone keyboard"
+            )
+        return None
