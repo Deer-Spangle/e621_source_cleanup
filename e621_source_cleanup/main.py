@@ -10,6 +10,7 @@ import requests
 import tqdm
 
 from e621_source_cleanup.checks.base import BaseCheck
+from e621_source_cleanup.checks.formatting import SpacesInURL
 from e621_source_cleanup.checks.furaffinity import CommentsLink, OldCDN
 from e621_source_cleanup.checks.misuse import CommaCheck, TagsCheck, TextCheck, EmailCheck
 from e621_source_cleanup.checks.protocols import MissingProtocol, BrokenProtocols, UnknownProtocol, InsecureProtocol
@@ -95,5 +96,6 @@ if __name__ == "__main__":
         BrokenProtocols(),
         UnknownProtocol(),
         InsecureProtocol(),
+        SpacesInURL(),
     ]
     scan_csv(path, checkers)
