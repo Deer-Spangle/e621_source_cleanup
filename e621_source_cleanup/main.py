@@ -92,8 +92,19 @@ def generate_report(csv_path: str, checks: List[BaseCheck], match_dict: Dict[str
     print("Total by check")
     check_counter = Counter({chk: len(matches["total"]) for chk, matches in by_check.items()})
     for chk, match_count in check_counter.most_common():
-        check_name = f"{chk.__class__.__module__}.{chk.__class__.__name__}"
-        print(f"- {check_name}: Total: {match_count}. Solvable: {len(by_check[chk]['auto'])}")
+        solvable = len(by_check[chk]["auto"])
+        percent = solvable / match_count * 100
+        print(f"- {chk.name}: Total: {match_count}. Solvable: {solvable} ({percent:02f}%)")
+    # Print total errors, total solvable
+    print(f"Total errors: {sum(len(by_check[chk]['total']) for chk in checks)}")
+    print(f"Total solvable errors: {sum(len(by_check[chk]['auto']) for chk in checks)}")
+    # Print check reports
+    for chk, matches in by_check.items():
+        check_report = chk.report()
+        if check_report:
+            print(f"## Report by {chk.name}:")
+            print(check_report)
+    # Save data as json
     json_data = {
         post_id: [match.to_json() for match in matches]
         for post_id, matches in match_dict.items()
