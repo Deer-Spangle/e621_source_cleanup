@@ -1,4 +1,5 @@
-from re import M
+from typing import Optional
+
 from e621_source_cleanup.checks.base import SourceMatch, SourceURL, URLCheck
 
 

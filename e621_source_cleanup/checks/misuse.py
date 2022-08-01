@@ -1,4 +1,5 @@
-from typing import Optional
+import string
+from typing import Optional, List
 
 from e621_source_cleanup.checks.base import SourceMatch, StringCheck
 
@@ -57,6 +58,7 @@ class TextCheck(StringCheck):
             self,
             "Seems like this source is just a message, maybe?"
         )
+
 
 class EmailCheck(StringCheck):
 

@@ -90,7 +90,7 @@ class InsecureProtocol(URLCheck):
         if source_url.protocol != "http":
             return None
         if source_url.domain_clean in self.secure_domains:
-            secure_url = f"https://{source_url.domain}/{source_url.path}
+            secure_url = f"https://{source_url.domain}/{source_url.path}"
             return SourceMatch(
                 post_id,
                 source_url.raw,

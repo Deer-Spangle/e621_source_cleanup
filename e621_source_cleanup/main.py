@@ -15,9 +15,7 @@ from e621_source_cleanup.checks.formatting import SpacesInURL
 from e621_source_cleanup.checks.furaffinity import CommentsLink, OldCDN, UserLinkWithoutSubmission, DirectLinkWithoutSubmission
 from e621_source_cleanup.checks.misuse import CommaCheck, TagsCheck, TextCheck, EmailCheck
 from e621_source_cleanup.checks.protocols import MissingProtocol, BrokenProtocols, UnknownProtocol, InsecureProtocol
-from e621_source_cleanup.checks.twitfix import TwitFixCheck
-
-from e621_source_cleanup.checks.twitter import TwitterTracking
+from e621_source_cleanup.checks.twitter import TwitFixCheck, TwitterTracking
 
 DB_DUMP_DIR = "db_export"
 
