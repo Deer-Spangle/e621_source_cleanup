@@ -40,5 +40,22 @@ class SourceMatch:
 class BaseCheck(ABC):
 
     @abstractmethod
-    def matches(self, source_list: List[str], post_id: str) -> bool:
+    def matches(self, source_list: List[str], post_id: str) -> Optional[SourceMatch]:
         pass
+
+
+class URLCheck(BaseCheck):
+
+    @abstractmethod
+    def matches_url(self, source_url: SourceURL, post_id: str) -> Optional[SourceMatch]:
+        pass
+
+    def matches(self, source_list: List[str], post_id: str) -> Optional[SourceMatch]:
+        for source in source_list:
+            source_url = SourceURL.decompose_source(source)
+            source_domain = source_url.domain
+            if source_domain is None:
+                continue
+            if match := self.matches_url(source_url, post_id):
+                return match
+        return None
