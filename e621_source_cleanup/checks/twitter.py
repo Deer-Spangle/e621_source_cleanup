@@ -12,6 +12,7 @@ class TwitFixCheck(URLCheck):
             "pxtwitter.com",
             "twitter64.com",
             "twittpr.com",
+            "nitter.net",
         ]
 
     def matches_url(self, source_url: SourceURL, post_id: str) -> Optional[SourceMatch]:
