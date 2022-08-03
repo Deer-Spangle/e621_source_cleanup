@@ -97,6 +97,8 @@ class URLCheck(StringCheck):
         source_domain = source_url.domain
         if source_domain is None:
             return None
+        if "://" in source_url.path:
+            return None
         if match := self.matches_url(source_url, post_id):
             return match
         return None
