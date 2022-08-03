@@ -7,7 +7,7 @@ import re
 import shutil
 import sys
 from collections import Counter
-from typing import List, Dict
+from typing import List, Dict, Tuple, Set
 
 import requests
 import tqdm
@@ -16,10 +16,12 @@ from e621_source_cleanup.checks.base import BaseCheck, SourceMatch
 from e621_source_cleanup.checks.deviantart import OldFormatUserPage
 from e621_source_cleanup.checks.formatting import SpacesInURL, TitlecaseDomain
 from e621_source_cleanup.checks.furaffinity import CommentsLink, OldCDN, UserLinkWithoutSubmission, \
-    DirectLinkWithoutSubmission, BrokenCDN, ThumbnailLink
-from e621_source_cleanup.checks.misuse import CommaCheck, TagsCheck, TextCheck, EmailCheck, LocalPath
+    DirectLinkWithoutSubmission, BrokenCDN, ThumbnailLink, UploadSuccessParam, FullViewLink
+from e621_source_cleanup.checks.inkbunny import AnchorTag
+from e621_source_cleanup.checks.misuse import CommaCheck, TagsCheck, TextCheck, EmailCheck, LocalPath, TwoURLs
 from e621_source_cleanup.checks.protocols import MissingProtocol, BrokenProtocols, UnknownProtocol, InsecureProtocol
-from e621_source_cleanup.checks.twitter import TwitFixCheck, TwitterTracking
+from e621_source_cleanup.checks.twitter import TwitFixCheck, TwitterTracking, MobileLink, OldDirectURL, \
+    MalformedDirectLinks
 
 DB_DUMP_DIR = "db_export"
 
@@ -162,6 +164,9 @@ if __name__ == "__main__":
     checkers = [
         TwitFixCheck(),
         TwitterTracking(),
+        MobileLink(),
+        OldDirectURL(),
+        MalformedDirectLinks(),
         CommentsLink(),
         CommaCheck(),
         OldCDN(),
@@ -169,10 +174,14 @@ if __name__ == "__main__":
         UserLinkWithoutSubmission(),
         DirectLinkWithoutSubmission(),
         ThumbnailLink(),
+        UploadSuccessParam(),
+        FullViewLink(),
+        AnchorTag(),
         TagsCheck(),
         TextCheck(),
         EmailCheck(),
         LocalPath(),
+        TwoURLs(),
         MissingProtocol(),
         BrokenProtocols(),
         UnknownProtocol(),
@@ -183,4 +192,3 @@ if __name__ == "__main__":
     ]
     match_result = scan_csv(path, checkers)
     generate_report(path, checkers, match_result)
-
