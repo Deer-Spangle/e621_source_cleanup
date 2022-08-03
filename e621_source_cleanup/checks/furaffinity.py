@@ -129,3 +129,35 @@ class ThumbnailLink(URLCheck):
                 "Furaffinity thumbnail link has been used, rather than direct link"
             )
         return None
+
+
+class UploadSuccessParam(URLCheck):
+
+    def matches_url(self, source_url: SourceURL, post_id: str) -> Optional[SourceMatch]:
+        if source_url.domain_clean != "furaffinity.net":
+            return None
+        if source_url.path.endswith("?upload-successful"):
+            fix_url, _ = source_url.raw.split("?", 1)
+            return SourceMatch(
+                post_id,
+                source_url.raw,
+                fix_url,
+                self,
+                "New submissions have ?upload-successful on the URL, which can be removed"
+            )
+        return None
+
+
+class FullViewLink(URLCheck):
+    def matches_url(self, source_url: SourceURL, post_id: str) -> Optional[SourceMatch]:
+        if source_url.domain_clean != "furaffinity.net":
+            return None
+        if source_url.path.startswith("full/"):
+            fix_url = f"https://{source_url.domain}/view/{source_url.path[5:]}"
+            return SourceMatch(
+                post_id,
+                source_url.raw,
+                fix_url,
+                self,
+                "Use /view/ links to FA submissions, rather than /full/ links"
+            )
