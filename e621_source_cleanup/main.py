@@ -104,6 +104,20 @@ def generate_report(csv_path: str, checks: List[BaseCheck], match_dict: Dict[str
     # Print total errors, total solvable
     print(f"Total errors: {sum(len(by_check[chk]['total']) for chk in checks)}")
     print(f"Total solvable errors: {sum(len(by_check[chk]['auto']) for chk in checks)}")
+    # Build overlap reports
+    by_overlap: Dict[Tuple[str, ...], Set[str]] = {}
+    for post_id, matches in match_dict.items():
+        match_names = tuple(sorted([match.check.name for match in matches]))
+        if match_names not in by_overlap:
+            by_overlap[match_names] = set()
+        by_overlap[match_names].add(post_id)
+    overlap_counter = Counter(
+        {checks: len(posts) for checks, posts in by_overlap.items() if len(checks) >= 2}
+    )
+    print(f"Total unique overlaps: {len(overlap_counter)}")
+    print("Most common overlaps:")
+    for checks, count in overlap_counter.items():
+        print(f"- {checks}: {count} (Ex: {list(by_overlap[checks])[:3]}")
     # Print check reports
     for chk, matches in by_check.items():
         check_report = chk.report()
