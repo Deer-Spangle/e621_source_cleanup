@@ -1,7 +1,7 @@
 import string
 from typing import Optional, List
 
-from e621_source_cleanup.checks.base import SourceMatch, StringCheck
+from e621_source_cleanup.checks.base import SourceMatch, StringCheck, SourceURL
 
 
 class CommaCheck(StringCheck):
@@ -100,3 +100,19 @@ class LocalPath(StringCheck):
                 "Source seems to start with windows drive address. Is it a local path?"
             )
         return None
+
+
+class TwoURLs(StringCheck):
+
+    def matches_str(self, source: str, post_id: str) -> Optional[SourceMatch]:
+        source_url = SourceURL.decompose_source(source)
+        if source_url.domain is None:
+            return None
+        if "://" in source_url.path:
+            return SourceMatch(
+                post_id,
+                source,
+                None,
+                self,
+                "Two URLs in the same line"
+            )
