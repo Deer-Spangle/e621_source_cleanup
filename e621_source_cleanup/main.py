@@ -64,7 +64,12 @@ def scan_csv(csv_path: str, checks: List[BaseCheck]) -> Dict[str, List[SourceMat
             source_list = [s.strip() for s in sources.strip().split("\n")]
             all_matches = []
             for check in checks:
-                if matches := check.matches(source_list, post_id):
+                try:
+                    matches = check.matches(source_list, post_id)
+                except Exception as e:
+                    print(f"CHECK FAILURE. {check.name} failed to check {post_id}")
+                    raise e
+                if matches:
                     all_matches.extend(matches)
             if all_matches:
                 match_dict[post_id] = all_matches
