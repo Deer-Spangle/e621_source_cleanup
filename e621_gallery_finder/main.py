@@ -6,11 +6,11 @@ import requests
 
 from e621_gallery_finder.source_checks import FAUserLink, FADirectLink, TwitterGallery, TwitterDirectLink, \
     FixableSourceMatch
-from e621_source_cleanup.checks.base import BaseCheck, SourceMatch
+from e621_source_cleanup.checks.base import BaseCheck
 from e621_source_cleanup.main import setup_max_int, fetch_db_dump_path, csv_line_count
 
 
-def scan_csv(csv_path: str, checks: List[BaseCheck]) -> Dict[str, List[SourceMatch]]:
+def scan_csv(csv_path: str, checks: List[BaseCheck]) -> Dict[str, List[FixableSourceMatch]]:
     total_lines = csv_line_count(csv_path)
     match_dict = {}
     with open(csv_path, "r", encoding="utf-8") as f:
