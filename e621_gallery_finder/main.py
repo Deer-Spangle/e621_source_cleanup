@@ -1,41 +1,13 @@
 import csv
-import dataclasses
-from typing import Optional, List, Dict
+from typing import List, Dict
 
 import tqdm
 import requests
 
-from e621_gallery_finder.source_checks import FAUserLink, FADirectLink, TwitterGallery, TwitterDirectLink
-from e621_source_cleanup.checks.base import BaseCheck, SourceURL, SourceMatch
+from e621_gallery_finder.source_checks import FAUserLink, FADirectLink, TwitterGallery, TwitterDirectLink, \
+    FixableSourceMatch
+from e621_source_cleanup.checks.base import BaseCheck, SourceMatch
 from e621_source_cleanup.main import setup_max_int, fetch_db_dump_path, csv_line_count
-
-
-@dataclasses.dataclass
-class MatchInfo:
-    source: SourceURL
-    e621_post_id: str
-    site_id: str
-    site_user_id: Optional[str] = None
-    direct_image_link: Optional[str] = None
-
-    def might_match_snapshot(self, snapshot: Dict) -> bool:
-        if snapshot["website_id"] != self.site_id:
-            return False
-        uploader_id = snapshot["submission_data"]["uploader_site_user_id"]
-        if self.site_user_id is not None and uploader_id is not None and self.site_user_id != uploader_id:
-            return False
-        file_urls = [file["file_url"] for file in snapshot["submission_data"]["files"] if file["file_url"] is not None]
-        if self.direct_image_link is not None and file_urls and self.direct_image_link not in file_urls:
-            return False
-        return True
-
-
-@dataclasses.dataclass
-class FixableSourceMatch(SourceMatch):
-    imprecise_matches: List[MatchInfo]
-
-    def match_snapshot(self, snapshot: Dict) -> bool:
-        return all(match_info.might_match_snapshot(snapshot) for match_info in self.imprecise_matches)
 
 
 def scan_csv(csv_path: str, checks: List[BaseCheck]) -> Dict[str, List[SourceMatch]]:
@@ -65,6 +37,7 @@ def scan_csv(csv_path: str, checks: List[BaseCheck]) -> Dict[str, List[SourceMat
                 match_dict[post_id] = all_matches
                 # print(f"Found {len(all_matches)} source match: {all_matches}")
     return match_dict
+
 
 hash_priority = [
     "python:phash",

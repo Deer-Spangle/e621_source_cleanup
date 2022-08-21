@@ -1,8 +1,36 @@
+import dataclasses
 from abc import abstractmethod
-from typing import List, Optional
+from typing import List, Optional, Dict
 
-from e621_gallery_finder.main import FixableSourceMatch, MatchInfo
-from e621_source_cleanup.checks.base import BaseCheck, SourceURL
+from e621_source_cleanup.checks.base import BaseCheck, SourceURL, SourceMatch
+
+
+@dataclasses.dataclass
+class MatchInfo:
+    source: SourceURL
+    e621_post_id: str
+    site_id: str
+    site_user_id: Optional[str] = None
+    direct_image_link: Optional[str] = None
+
+    def might_match_snapshot(self, snapshot: Dict) -> bool:
+        if snapshot["website_id"] != self.site_id:
+            return False
+        uploader_id = snapshot["submission_data"]["uploader_site_user_id"]
+        if self.site_user_id is not None and uploader_id is not None and self.site_user_id != uploader_id:
+            return False
+        file_urls = [file["file_url"] for file in snapshot["submission_data"]["files"] if file["file_url"] is not None]
+        if self.direct_image_link is not None and file_urls and self.direct_image_link not in file_urls:
+            return False
+        return True
+
+
+@dataclasses.dataclass
+class FixableSourceMatch(SourceMatch):
+    imprecise_matches: List[MatchInfo]
+
+    def match_snapshot(self, snapshot: Dict) -> bool:
+        return all(match_info.might_match_snapshot(snapshot) for match_info in self.imprecise_matches)
 
 
 class IncompleteSourceCheck(BaseCheck):
