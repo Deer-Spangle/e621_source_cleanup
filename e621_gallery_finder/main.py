@@ -4,6 +4,7 @@ from typing import List, Dict
 import tqdm
 import requests
 
+from e621_gallery_finder.e621_api import E621API
 from e621_gallery_finder.post_issues import PostIssues
 from e621_gallery_finder.source_checks import FAUserLink, FADirectLink, TwitterGallery, TwitterDirectLink, \
     FixableSourceMatch
@@ -51,6 +52,9 @@ class PostFixer:
         "any:sha256",
     ]
     _hash_id_priority = None
+
+    def __init__(self, e6_api: "E621API") -> None:
+        self.api = e6_api
 
     @property
     def hash_id_priority(self) -> List[int]:
@@ -121,6 +125,11 @@ if __name__ == "__main__":
         TwitterDirectLink(),
     ]
     match_dict = scan_csv(path, checkers)
-    fixer = PostFixer()
+    api = E621API(
+        "e621_gallery_finder/1.0.0 (by dr-spangle on e621)",
+        "dr-spangle",
+        ""
+    )
+    fixer = PostFixer(api)
     fixer.fix_sources(match_dict)
 
