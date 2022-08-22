@@ -1,8 +1,9 @@
 import datetime
 import time
-from typing import List
+from typing import List, Dict
 
 import requests
+import requests.auth
 
 
 class E621API:
@@ -23,24 +24,39 @@ class E621API:
         self.last_call = now
         return
 
-    def add_new_sources(self, post_id: str, new_source_links: List[str]) -> None:
+    def _get(self, url: str) -> Dict:
         self.wait_before_call()
-        current_post = requests.get(f"https://e621.net/posts/{post_id}.json").json()
-        current_sources = current_post["sources"]
+        return requests.get(
+            url,
+            headers={
+                "User-Agent": self.user_agent
+            }
+        ).json()
+
+    def _patch(self, url: str, json_data: Dict) -> Dict:
+        self.wait_before_call()
+        return requests.patch(
+            url,
+            headers={
+                "User-Agent": self.user_agent
+            },
+            data=json_data,
+            auth=requests.auth.HTTPBasicAuth(self.username, self.api_key)
+        ).json()
+
+    def add_new_sources(self, post_id: str, new_source_links: List[str]) -> None:
+        current_post = self._get(f"https://e621.net/posts/{post_id}.json")
+        current_sources = current_post["post"]["sources"]
         add_sources = set(new_source_links) - set(current_sources)
         if not add_sources:
             print(f"No need to add sources for post {post_id}")
             return
-        source_diff = "\n".join(f"+{source_link}" for source_link in add_sources)
-        self.wait_before_call()
-        requests.patch(
+        source_diff = "\n".join(f"{source_link}" for source_link in add_sources)
+        resp = self._patch(
             f"https://e621.net/posts/{post_id}.json",
-            headers={
-                "User-Agent": self.user_agent,
-            },
-            json={
+            {
                 "post[source_diff]": source_diff,
                 "post[edit_reason]": "Adding additional source links (e621_gallery_finder script)"
-            },
-            auth=requests.auth.HTTPBasicAuth(self.username, self.api_key)
+            }
         )
+        print(resp)
