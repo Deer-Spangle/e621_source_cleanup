@@ -1,5 +1,4 @@
 import csv
-import dataclasses
 import datetime
 from typing import List, Dict, Optional
 
@@ -8,6 +7,7 @@ import requests
 
 from e621_gallery_finder.database import Database
 from e621_gallery_finder.e621_api import E621API
+from e621_gallery_finder.new_source import NewSource
 from e621_gallery_finder.post_issues import PostIssues
 from e621_gallery_finder.source_checks import FAUserLink, FADirectLink, TwitterGallery, TwitterDirectLink, \
     FixableSourceMatch
@@ -36,24 +36,6 @@ def clean_direct_link(direct_link: Optional[str]) -> Optional[str]:
     direct_link = replace_prefix(direct_link, "https://d.facdn.net/", "https://d.furaffinity.net/")
     direct_link = replace_prefix(direct_link, "https://d2.facdn.net/", "https://d.furaffinity.net/")
     return direct_link
-
-
-@dataclasses.dataclass
-class NewSource:
-    submission_link: str
-    direct_link: Optional[str]
-
-    def source_links(self) -> List[str]:
-        new_sources = [self.submission_link]
-        if self.direct_link is not None:
-            new_sources.append(self.direct_link)
-        return new_sources
-
-    @classmethod
-    def from_snapshot(cls, snapshot: Dict, suspected_username: Optional[str] = None) -> "NewSource":
-        submission_url = post_to_url(snapshot['website_id'], snapshot['site_submission_id'], suspected_username)
-        direct_link = clean_direct_link(snapshot["submission_data"]["files"][0]["file_url"])
-        return cls(submission_url, direct_link)
 
 
 def scan_csv(csv_path: str, checks: List[BaseCheck]) -> Dict[str, List[FixableSourceMatch]]:
