@@ -1,4 +1,5 @@
 import csv
+import dataclasses
 from typing import List, Dict, Optional
 
 import tqdm
@@ -33,6 +34,24 @@ def clean_direct_link(direct_link: Optional[str]) -> Optional[str]:
     direct_link = replace_prefix(direct_link, "https://d.facdn.net/", "https://d.furaffinity.net/")
     direct_link = replace_prefix(direct_link, "https://d2.facdn.net/", "https://d.furaffinity.net/")
     return direct_link
+
+
+@dataclasses.dataclass
+class NewSource:
+    submission_link: str
+    direct_link: Optional[str]
+
+    def source_links(self) -> List[str]:
+        new_sources = [self.submission_link]
+        if self.direct_link is not None:
+            new_sources.append(self.direct_link)
+        return new_sources
+
+    @classmethod
+    def from_snapshot(cls, snapshot: Dict, suspected_username: Optional[str] = None) -> "NewSource":
+        submission_url = post_to_url(snapshot['website_id'], snapshot['site_submission_id'], suspected_username)
+        direct_link = clean_direct_link(snapshot["submission_data"]["files"][0]["file_url"])
+        return cls(submission_url, direct_link)
 
 
 def scan_csv(csv_path: str, checks: List[BaseCheck]) -> Dict[str, List[FixableSourceMatch]]:
@@ -97,13 +116,14 @@ class PostFixer:
         self._hash_id_priority = id_priority
         return id_priority
 
-    def find_matching_source(self, post_id: str, post_issues: PostIssues) -> List[str]:
+    def find_matching_source(self, post_id: str, post_issues: PostIssues) -> List[NewSource]:
         faxdb_post_data = requests.get(
             f"https://faexportdb.spangle.org.uk/api/view/submissions/e621/{post_id}.json"
         ).json()
         post_hashes = faxdb_post_data["data"]["submission_data"]["files"][0]["file_hashes"]
         remaining_match_infos = post_issues.unique_match_info()
         new_sources = []
+        e6_link = post_to_url("e621", post_id)
         for hash_id in self.hash_id_priority:
             value = next(iter(
                 [file_hash["hash_value"] for file_hash in post_hashes if file_hash["algo_id"] == hash_id]
@@ -117,7 +137,6 @@ class PostFixer:
                     "hash_value": value,
                 }
             ).json()
-            e6_link = post_to_url("e621", post_id)
             for snapshot in matching_results["results"]:
                 if snapshot["website_id"] == "e621":
                     if snapshot["site_submission_id"] == post_id:
@@ -129,12 +148,9 @@ class PostFixer:
                 for match_info in remaining_match_infos[:]:
                     if match_info.might_match_snapshot(snapshot):
                         remaining_match_infos.remove(match_info)
-                        submission_url = post_to_url(snapshot['website_id'], snapshot['site_submission_id'], match_info.site_user_id)
-                        new_sources.append(submission_url)
-                        direct_link = clean_direct_link(snapshot["submission_data"]["files"][0]["file_url"])
-                        if direct_link is not None:
-                            new_sources.append(direct_link)
-                        print(f"Found a potential source for post: {e6_link}, {submission_url}")
+                        new_source = NewSource.from_snapshot(snapshot, match_info.site_user_id)
+                        new_sources.append(new_source)
+                        print(f"Found a potential source for post: {e6_link}, {new_source.submission_link}")
         if remaining_match_infos:
             print(f"Can't find any matches for post {e6_link}")
         return new_sources
@@ -144,7 +160,8 @@ class PostFixer:
             post_issues = PostIssues(matches)
             new_sources = self.find_matching_source(post_id, post_issues)
             if new_sources:
-                self.api.add_new_sources(post_id, new_sources)
+                all_new_sources = sum([new_source.source_links() for new_source in new_sources], start=[])
+                self.api.add_new_sources(post_id, all_new_sources)
 
 
 if __name__ == "__main__":
@@ -156,12 +173,12 @@ if __name__ == "__main__":
         TwitterGallery(),
         TwitterDirectLink(),
     ]
-    match_dict = scan_csv(path, checkers)
+    m_dict = scan_csv(path, checkers)
     api = E621API(
         "e621_gallery_finder/1.0.0 (by dr-spangle on e621)",
         "dr-spangle",
         ""
     )
     fixer = PostFixer(api)
-    fixer.fix_sources(match_dict)
+    fixer.fix_sources(m_dict)
 
