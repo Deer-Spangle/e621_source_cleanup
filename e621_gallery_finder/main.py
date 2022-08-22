@@ -1,10 +1,12 @@
 import csv
 import dataclasses
+import datetime
 from typing import List, Dict, Optional
 
 import tqdm
 import requests
 
+from e621_gallery_finder.database import Database
 from e621_gallery_finder.e621_api import E621API
 from e621_gallery_finder.post_issues import PostIssues
 from e621_gallery_finder.source_checks import FAUserLink, FADirectLink, TwitterGallery, TwitterDirectLink, \
@@ -95,8 +97,9 @@ class PostFixer:
     ]
     _hash_id_priority = None
 
-    def __init__(self, e6_api: "E621API") -> None:
+    def __init__(self, e6_api: "E621API", db: Database) -> None:
         self.api = e6_api
+        self.db = db
 
     @property
     def hash_id_priority(self) -> List[int]:
@@ -159,9 +162,10 @@ class PostFixer:
         for post_id, matches in match_dict.items():
             post_issues = PostIssues(matches)
             new_sources = self.find_matching_source(post_id, post_issues)
-            if new_sources:
-                all_new_sources = sum([new_source.source_links() for new_source in new_sources], start=[])
-                self.api.add_new_sources(post_id, all_new_sources)
+            now = datetime.datetime.now(datetime.timezone.utc)
+            self.db.add_post(post_id, now)
+            for new_source in new_sources:
+                self.db.add_new_source(post_id, new_source.submission_link, new_source.direct_link)
 
 
 if __name__ == "__main__":
@@ -179,6 +183,7 @@ if __name__ == "__main__":
         "dr-spangle",
         ""
     )
-    fixer = PostFixer(api)
+    db_obj = Database()
+    fixer = PostFixer(api, db_obj)
     fixer.fix_sources(m_dict)
 
