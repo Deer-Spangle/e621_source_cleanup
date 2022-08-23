@@ -78,8 +78,7 @@ def record_match():
     if action == "match_all":
         sources = []
         for source_id in source_ids:
-            sid, post_id, submission_link, direct_link, checked, approved = db.get_source(source_id)
-            sources.append(NewSourceEntry(submission_link, direct_link, sid, checked, approved))
+            sources.append(db.get_source(source_id))
         source_links = sum([source.source_links() for source in sources], start=[])
         api.add_new_sources(post_id, source_links)
         for source_id in source_ids:

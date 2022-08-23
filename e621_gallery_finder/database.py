@@ -6,6 +6,9 @@ from sqlite3 import Cursor
 from typing import Optional, Union, Tuple, Dict, ContextManager, List
 
 
+from e621_gallery_finder.new_source import NewSourceEntry, PostStatusEntry
+
+
 class Database:
     DB_FILE = "e6_post_sources.sqlite"
 
@@ -112,10 +115,18 @@ class Database:
             (approved, source_id)
         )
 
-    def get_source(self, source_id: int) -> Tuple[int, str, Optional[str], Optional[str], bool, Optional[bool]]:
+    def get_source(self, source_id: int) -> Optional[NewSourceEntry]:
         with self._execute(
             "SELECT post_id, submission_link, direct_link, checked, approved FROM post_new_sources WHERE source_id = ?",
             (source_id,)
         ) as result:
             for row in result:
-                return source_id, row[0], row[1], row[2], row[3], row[4]
+                return NewSourceEntry(
+                    source_id,
+                    row[0],
+                    row[1],
+                    row[2],
+                    row[3],
+                    row[4]
+                )
+        return None
