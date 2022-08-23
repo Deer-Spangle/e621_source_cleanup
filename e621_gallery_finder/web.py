@@ -7,7 +7,8 @@ import flask
 
 from e621_gallery_finder.database import Database
 from e621_gallery_finder.e621_api import E621API
-from e621_gallery_finder.new_source import NewSource
+from e621_gallery_finder.new_source import NewSource, NewSourceEntry, PostStatusEntry
+
 
 templates_dir = Path(__file__).parent / "templates"
 static_dir = Path(__file__).parent / "static"
@@ -48,50 +49,12 @@ def login_post():
     return resp
 
 
-@dataclasses.dataclass
-class PostStatus:
-    post_id: str
-    skip_date: Optional[datetime.datetime]
-    last_checked: datetime.datetime
-    _direct_url: Optional[str] = None
-
-    @property
-    def post_link(self) -> str:
-        return f"https://e621.net/posts/{self.post_id}"
-
-    def direct_url(self) -> str:
-        if self._direct_url:
-            return self._direct_url
-        resp = api.get_post(self.post_id)
-        self._direct_url = resp["post"]["file"]["url"]
-        return self._direct_url
-
-
-@dataclasses.dataclass
-class NewSourceEntry(NewSource):
-    source_id: int
-    checked: bool
-    approved: Optional[bool]
-
-    @property
-    def skip_date_format(self) -> str:
-        if self.skip_date is None:
-            return "None"
-        return self.skip_date.isoformat()
-    
-    @property
-    def direct_link_fallback(self) -> Optional[str]:
-        if self.direct_link is None:
-            return None
-        fallback_url = "https://hotlink.spangle.org.uk/img/" + base64.b64encode(self.direct_link.encode()).decode()
-
-
-def get_next_post() -> Optional[Tuple[PostStatus, List[NewSourceEntry]]]:
+def get_next_post() -> Optional[Tuple[PostStatusEntry, List[NewSourceEntry]]]:
     next_data = db.get_next_unchecked_source()
     if next_data is None:
         return None
     post_data, sources_data = next_data
-    post_status = PostStatus(post_data[0], post_data[1], post_data[2])
+    post_status = PostStatusEntry(post_data[0], post_data[1], post_data[2])
     new_sources = []
     for source_data in sources_data:
         new_sources.append(NewSourceEntry(source_data[1], source_data[2], source_data[0], source_data[3], source_data[4]))
@@ -132,8 +95,11 @@ def check_match():
     if next_data is None:
         return "No more matches to check!"
     post_status, new_sources = next_data
+    post_resp = api.get_post(post_status.post_id)
+    post_direct_url = post_resp["post"]["file"]["url"]
     return flask.render_template(
         "check.html",
         post_status=post_status,
         new_sources=new_sources,
+        post_direct_url=post_direct_url,
     )

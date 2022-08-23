@@ -1,3 +1,4 @@
+import base64
 import dataclasses
 from typing import Optional, List, Dict
 
@@ -41,3 +42,33 @@ class NewSource:
         submission_url = post_to_url(snapshot['website_id'], snapshot['site_submission_id'], suspected_username)
         direct_link = clean_direct_link(snapshot["submission_data"]["files"][0]["file_url"])
         return cls(submission_url, direct_link)
+
+
+@dataclasses.dataclass
+class PostStatusEntry:
+    post_id: str
+    skip_date: Optional[datetime.datetime]
+    last_checked: datetime.datetime
+
+    @property
+    def post_link(self) -> str:
+        return f"https://e621.net/posts/{self.post_id}"
+
+
+@dataclasses.dataclass
+class NewSourceEntry(NewSource):
+    source_id: int
+    checked: bool
+    approved: Optional[bool]
+
+    @property
+    def skip_date_format(self) -> str:
+        if self.skip_date is None:
+            return "None"
+        return self.skip_date.isoformat()
+    
+    @property
+    def direct_link_fallback(self) -> Optional[str]:
+        if self.direct_link is None:
+            return None
+        fallback_url = "https://hotlink.spangle.org.uk/img/" + base64.b64encode(self.direct_link.encode()).decode()
