@@ -30,7 +30,8 @@ class E621API:
             url,
             headers={
                 "User-Agent": self.user_agent
-            }
+            },
+            auth=requests.auth.HTTPBasicAuth(self.username, self.api_key)
         ).json()
 
     def _patch(self, url: str, json_data: Dict) -> Dict:
