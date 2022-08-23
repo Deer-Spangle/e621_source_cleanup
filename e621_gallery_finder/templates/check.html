@@ -36,7 +36,7 @@ Skipped: {{ post_status.skip_date_format }}<br />
 {% for source in new_sources %}
     {% if source.direct_link %}
         <td>
-            <img src="{{ self.direct_link }}" onError="this.onError=null;this.src='{{ self.direct_link_fallback }}'" />
+            <img src="{{ source.direct_link }}" onError="this.onError=null;this.src='{{ source.direct_link_fallback }}'" />
         </td>
     {% else %}
         <td>No direct link</td>
