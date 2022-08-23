@@ -55,21 +55,21 @@ class PostStatusEntry:
     def post_link(self) -> str:
         return f"https://e621.net/posts/{self.post_id}"
 
+    @property
+    def skip_date_format(self) -> str:
+        if self.skip_date is None:
+            return "None"
+        return self.skip_date.isoformat()
+
 
 @dataclasses.dataclass
 class NewSourceEntry(NewSource):
     source_id: int
     checked: bool
     approved: Optional[bool]
-
-    @property
-    def skip_date_format(self) -> str:
-        if self.skip_date is None:
-            return "None"
-        return self.skip_date.isoformat()
     
     @property
     def direct_link_fallback(self) -> Optional[str]:
         if self.direct_link is None:
             return None
-        fallback_url = "https://hotlink.spangle.org.uk/img/" + base64.b64encode(self.direct_link.encode()).decode()
+        return "https://hotlink.spangle.org.uk/img/" + base64.b64encode(self.direct_link.encode()).decode()
