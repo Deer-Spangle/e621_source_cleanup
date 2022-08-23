@@ -120,16 +120,15 @@ class Database:
 
     def get_source(self, source_id: int) -> Optional[NewSourceEntry]:
         with self._execute(
-            "SELECT post_id, submission_link, direct_link, checked, approved FROM post_new_sources WHERE source_id = ?",
+            "SELECT submission_link, direct_link, checked, approved FROM post_new_sources WHERE source_id = ?",
             (source_id,)
         ) as result:
             for row in result:
                 return NewSourceEntry(
-                    source_id,
                     row[0],
                     row[1],
+                    source_id,
                     row[2],
-                    row[3],
-                    row[4]
+                    row[3]
                 )
         return None
