@@ -71,10 +71,7 @@ class Database:
             for row in result:
                 return row[0]
 
-    def get_next_unchecked_source(self) -> Optional[Tuple[
-        Tuple[str, Optional[datetime.datetime], datetime.datetime],
-        List[Tuple[int, Optional[str], Optional[str], bool, Optional[bool]]]
-    ]]:
+    def get_next_unchecked_source(self) -> Optional[Tuple[PostStatusEntry, List[NewSourceEntry]]]:
         post_id = None
         with self._execute(
             "SELECT post_id FROM post_new_sources WHERE checked = false"
@@ -84,7 +81,7 @@ class Database:
                 break
         if post_id is None:
             return None
-        row_data = None
+        post_status = None
         with self._execute(
             "SELECT skip_date, last_checked FROM post_status WHERE post_id = ?", (post_id,)
         ) as post_result:
@@ -92,7 +89,7 @@ class Database:
                 skip_date = None
                 if row[0]:
                     skip_date = datetime.datetime.fromisoformat(row[0])
-                row_data = (post_id, skip_date, datetime.datetime.fromisoformat(row[1]))
+                post_status = PostStatusEntry(post_id, skip_date, datetime.datetime.fromisoformat(row[1]))
         new_sources = []
         with self._execute(
             "SELECT source_id, submission_link, direct_link, checked, approved FROM post_new_sources "
@@ -100,7 +97,9 @@ class Database:
                 (post_id,)
         ) as source_result:
             for row in source_result:
-                new_sources.append((row[0], row[1], row[2], row[3], row[4]))
+                new_sources.append(NewSourceEntry(
+                    row[1], row[2], row[0], row[3], row[4]
+                ))
         return row_data, new_sources
 
     def update_post_skip(self, post_id: str, skip_date: datetime.datetime) -> None:

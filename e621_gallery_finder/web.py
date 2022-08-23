@@ -53,11 +53,7 @@ def get_next_post() -> Optional[Tuple[PostStatusEntry, List[NewSourceEntry]]]:
     next_data = db.get_next_unchecked_source()
     if next_data is None:
         return None
-    post_data, sources_data = next_data
-    post_status = PostStatusEntry(post_data[0], post_data[1], post_data[2])
-    new_sources = []
-    for source_data in sources_data:
-        new_sources.append(NewSourceEntry(source_data[1], source_data[2], source_data[0], source_data[3], source_data[4]))
+    post_status, new_sources = next_data
     return post_status, new_sources
 
 
