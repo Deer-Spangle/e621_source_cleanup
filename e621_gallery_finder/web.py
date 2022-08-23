@@ -28,8 +28,8 @@ AUTH_KEY = ""
 def hello():
     return flask.render_template(
         "home.html",
-        unchecked_sources = db.count_unchecked_sources(),
-        total_sources = db.count_total_sources(),
+        unchecked_sources=db.count_unchecked_sources(),
+        total_sources=db.count_total_sources(),
     )
 
 
@@ -67,11 +67,19 @@ def record_match():
     action = flask.request.form["action"]
     if action == "skip":
         db.update_post_skip(post_id, datetime.datetime.now(datetime.timezone.utc))
-        return "Post skipped. <a href=\"/check\">Click here for another</a>"
+        return flask.render_template(
+            "check_post.html",
+            message="Post skipped.",
+            post_id=post_id,
+        )
     if action == "no_match":
         for source_id in source_ids:
             db.update_source_approved(source_id, False)
-        return "Marked sources as no match. <a href=\"/check\">Click here for another</a>"
+        return flask.render_template(
+            "check_post.html",
+            message="Marked sources as no match.",
+            post_id=post_id,
+        )
     if action == "match_all":
         sources = []
         for source_id in source_ids:
@@ -80,7 +88,11 @@ def record_match():
         api.add_new_sources(post_id, source_links)
         for source_id in source_ids:
             db.update_source_approved(source_id, True)
-        return f"Added sources for <a href=\"https://e621.net/posts/{post_id}\">e621 post</a>. <a href=\"/check\">Click here for another</a>"
+        return flask.render_template(
+            "check_post.html",
+            message="Added source links for e621 post.",
+            post_id=post_id,
+        )
 
 
 @app.route("/check")

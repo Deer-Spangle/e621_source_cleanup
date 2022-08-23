@@ -8,3 +8,12 @@ th {
 img {
     max-width: 100%;
 }
+.button_next {
+    width: 30em;
+    height: 5em;
+    background-color: lightgreen;
+}
+input[type=submit] {
+    height: 5em;
+    width: 15em;
+}
