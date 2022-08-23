@@ -74,7 +74,11 @@ class Database:
     def get_next_unchecked_source(self) -> Optional[Tuple[PostStatusEntry, List[NewSourceEntry]]]:
         post_id = None
         with self._execute(
-            "SELECT post_id FROM post_new_sources WHERE checked = false"
+            "SELECT sources.post_id "
+            "FROM post_new_sources sources "
+            "LEFT JOIN post_status posts ON posts.post_id = sources.post_id "
+            "WHERE checked = false "
+            "ORDER BY posts.skip_date ASC, posts.last_checked ASC"
         ) as post_select:
             for row in post_select:
                 post_id = row[0]
