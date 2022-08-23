@@ -116,7 +116,7 @@ class PostFixer:
         return new_sources
 
     def fix_sources(self, match_dict: Dict[str, List[FixableSourceMatch]]) -> None:
-        for post_id, matches in match_dict.items():
+        for post_id, matches in tqdm.tqdm(match_dict.items(), desc="Finding source matches"):
             post_issues = PostIssues(matches)
             new_sources = self.find_matching_source(post_id, post_issues)
             now = datetime.datetime.now(datetime.timezone.utc)
