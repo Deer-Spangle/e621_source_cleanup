@@ -2,7 +2,7 @@
 
 {% block body %}
 Post: <a href="{{ post_status.post_link }}">{{ post_status.post_id }}</a><br />
-Last checked: {{ post_status.last_checked.isoformat()} }}<br />
+Last checked: {{ post_status.last_checked.isoformat() }}<br />
 Skipped: {{ post_status.skip_date_format }}<br />
 <br />
 <form action="/check" method="post">
