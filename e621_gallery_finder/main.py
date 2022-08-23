@@ -1,41 +1,18 @@
 import csv
 import datetime
-from typing import List, Dict, Optional
+from typing import List, Dict
 
 import tqdm
 import requests
 
 from e621_gallery_finder.database import Database
 from e621_gallery_finder.e621_api import E621API
-from e621_gallery_finder.new_source import NewSource
+from e621_gallery_finder.new_source import NewSource, post_to_url
 from e621_gallery_finder.post_issues import PostIssues
 from e621_gallery_finder.source_checks import FAUserLink, FADirectLink, TwitterGallery, TwitterDirectLink, \
     FixableSourceMatch
 from e621_source_cleanup.checks.base import BaseCheck
 from e621_source_cleanup.main import setup_max_int, fetch_db_dump_path, csv_line_count
-
-
-def post_to_url(site_id: str, post_id: str, username: Optional[str] = None) -> str:
-    return {
-        "e621": f"https://e621.net/posts/{post_id}/",
-        "fa": f"https://www.furaffinity.net/view/{post_id}/",
-        "twitter": f"https://twitter.com/{username or 'user'}/status/{post_id}"
-    }[site_id]
-
-
-def replace_prefix(source: str, old_prefix: str, new_prefix: str) -> str:
-    if source.startswith(old_prefix):
-        return new_prefix + source[len(old_prefix):]
-    return source
-
-
-def clean_direct_link(direct_link: Optional[str]) -> Optional[str]:
-    if direct_link is None:
-        return None
-    direct_link = replace_prefix(direct_link, "http://", "https://")
-    direct_link = replace_prefix(direct_link, "https://d.facdn.net/", "https://d.furaffinity.net/")
-    direct_link = replace_prefix(direct_link, "https://d2.facdn.net/", "https://d.furaffinity.net/")
-    return direct_link
 
 
 def scan_csv(csv_path: str, checks: List[BaseCheck]) -> Dict[str, List[FixableSourceMatch]]:
