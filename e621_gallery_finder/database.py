@@ -60,3 +60,55 @@ class Database:
         ) as result:
             for row in result:
                 return row[0]
+
+    def get_next_unchecked_source(self) -> Optional[Tuple[
+        Tuple[str, Optional[datetime.datetime], datetime.datetime],
+        List[Tuple[int, Optional[str], Optional[str], bool, Optional[bool]]]
+    ]]:
+        post_id = None
+        with self._execute(
+            "SELECT post_id FROM post_new_sources WHERE checked = false"
+        ) as post_select:
+            for row in post_select:
+                post_id = row[0]
+                break
+        if post_id is None:
+            return None
+        row_data = None
+        with self._execute(
+            "SELECT skip_date, last_checked FROM post_status WHERE post_id = ?", (post_id,)
+        ) as post_result:
+            for row in post_result:
+                skip_date = None
+                if row[0]:
+                    skip_date = datetime.datetime.fromisoformat(row[0])
+                row_data = (post_id, skip_date, datetime.datetime.fromisoformat(row[1]))
+        new_sources = []
+        with self._execute(
+            "SELECT source_id, submission_link, direct_link, checked, approved FROM post_new_sources "
+            "WHERE post_id = ? AND checked = False",
+                (post_id,)
+        ) as source_result:
+            for row in source_result:
+                new_sources.append((row[0], row[1], row[2], row[3], row[4]))
+        return row_data, new_sources
+
+    def update_post_skip(self, post_id: str, skip_date: datetime.datetime) -> None:
+        self._just_execute(
+            "UPDATE post_status SET skip_date = ? WHERE post_id = ?",
+            (skip_date, post_id)
+        )
+
+    def update_source_approved(self, source_id: int, approved: bool) -> None:
+        self._just_execute(
+            "UPDATE post_new_sources SET checked = True, approved = ? WHERE source_id = ?",
+            (approved, source_id)
+        )
+
+    def get_source(self, source_id: int) -> Tuple[int, str, Optional[str], Optional[str], bool, Optional[bool]]:
+        with self._execute(
+            "SELECT post_id, submission_link, direct_link, checked, approved FROM post_new_sources WHERE source_id = ?",
+            (source_id,)
+        ) as result:
+            for row in result:
+                return source_id, row[0], row[1], row[2], row[3], row[4]
