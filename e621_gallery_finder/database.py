@@ -104,7 +104,7 @@ class Database:
                 new_sources.append(NewSourceEntry(
                     row[1], row[2], row[0], row[3], row[4]
                 ))
-        return row_data, new_sources
+        return post_status, new_sources
 
     def update_post_skip(self, post_id: str, skip_date: datetime.datetime) -> None:
         self._just_execute(
