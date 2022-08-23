@@ -22,8 +22,6 @@ def scan_csv(csv_path: str, checks: List[BaseCheck]) -> Dict[str, List[FixableSo
         reader = csv.reader(f)
         next(reader, None)
         for row in tqdm.tqdm(reader, desc="Checking sources", total=total_lines):
-            if len(match_dict) >= 100:  # TODO: This is just for testing fix
-                break
             post_id = row[0]
             sources = row[4]
             if not sources.strip():
