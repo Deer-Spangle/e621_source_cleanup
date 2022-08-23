@@ -1,5 +1,6 @@
 import csv
 import datetime
+import json
 from typing import List, Dict
 
 import tqdm
@@ -126,6 +127,9 @@ class PostFixer:
 
 
 if __name__ == "__main__":
+    config_path = "./config.json"
+    with open(config_path, "r") as conf_file:
+        config = json.load(conf_file)
     setup_max_int()
     path = fetch_db_dump_path()
     checkers = [
@@ -138,7 +142,7 @@ if __name__ == "__main__":
     api = E621API(
         "e621_gallery_finder/1.0.0 (by dr-spangle on e621)",
         "dr-spangle",
-        ""
+        config["e621_api_key"]
     )
     db_obj = Database()
     fixer = PostFixer(api, db_obj)

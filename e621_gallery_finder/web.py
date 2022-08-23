@@ -1,6 +1,7 @@
 import base64
 import dataclasses
 import datetime
+import json
 from pathlib import Path
 from typing import Tuple, List, Optional
 
@@ -15,13 +16,16 @@ templates_dir = Path(__file__).parent / "templates"
 static_dir = Path(__file__).parent / "static"
 app = flask.Flask(__name__, template_folder=templates_dir, static_folder=static_dir)
 db = Database()
+config_path = "./config.json"
+with open(config_path, "r") as conf_file:
+    config = json.load(conf_file)
 api = E621API(
     "e621_gallery_finder/1.0.0 (by dr-spangle on e621)",
     "dr-spangle",
-    ""
+    config["e621_api_key"]
 )
 
-AUTH_KEY = ""
+AUTH_KEY = config["web_auth_key"]
 
 
 @app.route('/')
