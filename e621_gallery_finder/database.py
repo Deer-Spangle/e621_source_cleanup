@@ -60,6 +60,13 @@ class Database:
         ) as result:
             for row in result:
                 return row[0]
+    
+    def count_total_sources(self) -> int:
+        with self._execute(
+            "SELECT COUNT(*) FROM post_new_sources"
+        ) as result:
+            for row in result:
+                return row[0]
 
     def get_next_unchecked_source(self) -> Optional[Tuple[
         Tuple[str, Optional[datetime.datetime], datetime.datetime],

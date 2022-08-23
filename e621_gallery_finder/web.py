@@ -9,7 +9,9 @@ from e621_gallery_finder.database import Database
 from e621_gallery_finder.e621_api import E621API
 from e621_gallery_finder.new_source import NewSource
 
-app = flask.Flask(__name__)
+templates_dir = Path(__file__).parent / "templates"
+static_dir = Path(__file__).parent / "static"
+app = flask.Flask(__name__, template_folder=templates_dir, static_folder=static_dir)
 db = Database()
 api = E621API(
     "e621_gallery_finder/1.0.0 (by dr-spangle on e621)",
@@ -22,27 +24,18 @@ AUTH_KEY = ""
 
 @app.route('/')
 def hello():
-    return f"""
-<html>
-<body>
-Welcome to the e621 source adding UI This should present you with 2 or 3 images, 
-and you confirm whether they match. Easy!<br/>
-There are: {db.count_unchecked_sources()} unchecked sources.
-"""
+    return flask.render_template(
+        "home.html",
+        unchecked_sources = db.count_unchecked_sources(),
+        total_sources = db.count_total_sources(),
+    )
 
 
 @app.route("/login")
 def login_form():
-    return """
-<html>
-<body>
-<form action="/login" method="post">
-Password: <input type="password" name="auth_key" /><br />
-<input type="submit" />
-</form>
-</body>
-</html>
-"""
+    return flask.render_template(
+        "login.html"
+    )
 
 
 @app.route("/login", methods=["POST"])
@@ -81,17 +74,16 @@ class NewSourceEntry(NewSource):
     approved: Optional[bool]
 
     @property
-    def submission_link_cell_html(self) -> str:
-        if self.submission_link is None:
-            return "<td>None</td>"
-        return f"<td><a href=\"{self.submission_link}\">Link</a></td>"
-
+    def skip_date_format(self) -> str:
+        if self.skip_date is None:
+            return "None"
+        return self.skip_date.isoformat()
+    
     @property
-    def direct_link_cell_html(self) -> str:
+    def direct_link_fallback(self) -> Optional[str]:
         if self.direct_link is None:
-            return "<td>No direct link</td>"
+            return None
         fallback_url = "https://hotlink.spangle.org.uk/img/" + base64.b64encode(self.direct_link.encode()).decode()
-        return f"<td><img style=\"max-width: 100%\" src=\"{self.direct_link}\" onError=\"this.onError=null;this.src='{fallback_url}'\" />"
 
 
 def get_next_post() -> Optional[Tuple[PostStatus, List[NewSourceEntry]]]:
@@ -140,51 +132,8 @@ def check_match():
     if next_data is None:
         return "No more matches to check!"
     post_status, new_sources = next_data
-    return f"""
-<html>
-<head>
-<style>
-table, tr, th, td {{
-    border: 1px solid black;
-    border-collapse: collapse;
-}}
-th {{
-    background-color: #f7dc6f;
-}}
-th.calculated {{
-    background-color: #5dade2;
-}}
-</style>
-</head>
-<body>
-Post: <a href="{post_status.post_link}">{post_status.post_id}</a><br />
-Last checked: {post_status.last_checked.isoformat()}<br />
-Skipped: {"N/A" if post_status.skip_date is None else post_status.skip_date.isoformat()}<br />
-<br />
-<form action="/check" method="post">
-<input type="hidden" name="post_id" value="{post_status.post_id}" />
-<input type="hidden" name="source_ids" value="{",".join(str(source.source_id) for source in new_sources)}" />
-<input type="submit" name="action" value="match_all" />
-<input type="submit" name="action" value="skip" />
-<input type="submit" name="action" value="no_match" />
-</form>
-<table>
-<tr>
-<td>Original</td>
-{"".join("<td>New Source</td>" for _ in new_sources)}
-</tr>
-
-<tr>
-<td><a href="{post_status.post_link}">Post link</a></td>
-{"".join(source.submission_link_cell_html for source in new_sources)}
-</tr>
-
-<tr>
-<td><img style="max-width: 100%" src="{post_status.direct_url()}" /></td>
-{"".join(source.direct_link_cell_html for source in new_sources)}
-
-</table>
-
-</body>
-</html>
-"""
+    return flask.render_template(
+        "check.html",
+        post_status=post_status,
+        new_sources=new_sources,
+    )

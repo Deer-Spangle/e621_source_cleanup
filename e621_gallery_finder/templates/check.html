@@ -1,0 +1,47 @@
+{% extend 'base.html' %}
+
+{% block body %}
+Post: <a href="{{ post_status.post_link }}">{{ post_status.post_id }}</a><br />
+Last checked: {{ post_status.last_checked.isoformat()} }}<br />
+Skipped: {{ post_status.skip_date_format }}<br />
+<br />
+<form action="/check" method="post">
+<input type="hidden" name="post_id" value="{{ post_status.post_id }}" />
+<input type="hidden" name="source_ids" value="{{ new_sources|map(attribute='source_id')|join(',') }}" />
+<input type="submit" name="action" value="match_all" />
+<input type="submit" name="action" value="skip" />
+<input type="submit" name="action" value="no_match" />
+</form>
+<table>
+<tr>
+<th>Original</th>
+{% for _ in new_sources %}
+    <th>New Source</th>
+{% endfor %}
+</tr>
+
+<tr>
+<td><a href="{{ post_status.post_link }}">Post link</a></td>
+{% for source in new_sources %}
+    {% if source.submission_link %}
+        <td><a href="{{ source.submission_link }}">Link</a></td>
+    {% else %}
+        <td>None</td>
+    {% endif %}
+{% endfor %}
+</tr>
+
+<tr>
+<td><img src="{{ post_status.direct_url() }}" /></td>
+{% for source in new_sources %}
+    {% if source.direct_link %}
+        <td>
+            <img src="{{ self.direct_link }}" onError="this.onError=null;this.src='{{ self.direct_link_fallback }}'" />
+        </td>
+    {% else %}
+        <td>No direct link</td>
+    {% endif %}
+{% endfor %}
+
+</table>
+{% endblock %}
