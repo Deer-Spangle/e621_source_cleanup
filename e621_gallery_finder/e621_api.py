@@ -44,8 +44,11 @@ class E621API:
             auth=requests.auth.HTTPBasicAuth(self.username, self.api_key)
         ).json()
 
+    def get_post(self, post_id: str) -> Dict:
+        return self._get(f"https://e621.net/posts/{post_id}.json")
+
     def add_new_sources(self, post_id: str, new_source_links: List[str]) -> None:
-        current_post = self._get(f"https://e621.net/posts/{post_id}.json")
+        current_post = self.get_post(post_id)
         current_sources = current_post["post"]["sources"]
         add_sources = set(new_source_links) - set(current_sources)
         if not add_sources:
