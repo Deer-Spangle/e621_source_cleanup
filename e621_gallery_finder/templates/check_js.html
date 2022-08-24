@@ -11,13 +11,17 @@
 {% block header_append %}
 <script>
     const seen_posts = []
+    let updating = false
 
     async function load_posts(count = 20) {
+        if (updating) return
+        updating = true
         const resp = await fetch(`/list_next.json?count=${count}`)
         const data = await resp.json()
         for (let result of data["data"]["results"]) {
             add_post(result["post_status"], result["new_sources"])
         }
+        updating = false
     }
 
     function add_post(post_status, new_sources) {
