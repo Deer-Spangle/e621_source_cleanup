@@ -67,3 +67,5 @@ class E621API:
             }
         )
         print(resp)
+        if "success" in resp and resp["success"] is False:
+            raise Exception(f"E621 API responded with an error: {resp['reason']}")
