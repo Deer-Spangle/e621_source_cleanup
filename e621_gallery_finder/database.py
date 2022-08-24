@@ -71,20 +71,7 @@ class Database:
             for row in result:
                 return row[0]
 
-    def get_next_unchecked_source(self) -> Optional[Tuple[PostStatusEntry, List[NewSourceEntry]]]:
-        post_id = None
-        with self._execute(
-            "SELECT sources.post_id "
-            "FROM post_new_sources sources "
-            "LEFT JOIN post_status posts ON posts.post_id = sources.post_id "
-            "WHERE checked = false "
-            "ORDER BY posts.skip_date ASC, posts.last_checked ASC"
-        ) as post_select:
-            for row in post_select:
-                post_id = row[0]
-                break
-        if post_id is None:
-            return None
+    def get_post_status(self, post_id: str) -> Optional[PostStatusEntry]:
         post_status = None
         with self._execute(
             "SELECT skip_date, last_checked FROM post_status WHERE post_id = ?", (post_id,)
@@ -94,6 +81,9 @@ class Database:
                 if row[0]:
                     skip_date = datetime.datetime.fromisoformat(row[0])
                 post_status = PostStatusEntry(post_id, skip_date, datetime.datetime.fromisoformat(row[1]))
+        return post_status
+    
+    def get_unchecked_sources_by_post_id(self, post_id: str) -> List[NewSourceEntry]:
         new_sources = []
         with self._execute(
             "SELECT source_id, submission_link, direct_link, checked, approved FROM post_new_sources "
@@ -104,7 +94,27 @@ class Database:
                 new_sources.append(NewSourceEntry(
                     row[1], row[2], row[0], row[3], row[4]
                 ))
-        return post_status, new_sources
+        return new_sources
+
+    def get_next_unchecked_sources(self, count: int = 1) -> List[Tuple[PostStatusEntry, List[NewSourceEntry]]]:
+        post_ids = []
+        with self._execute(
+            "SELECT sources.post_id "
+            "FROM post_new_sources sources "
+            "LEFT JOIN post_status posts ON posts.post_id = sources.post_id "
+            "WHERE checked = false "
+            "ORDER BY posts.skip_date ASC, posts.last_checked ASC"
+        ) as post_select:
+            for row in post_select:
+                post_ids.append(row[0])
+                if len(post_ids) >= count):
+                    break
+        results = []
+        for post_id in post_ids:
+            post_status = self.get_post_status(post_id)
+            new_sources = self.get_unchecked_sources_by_post_id(post_id)
+            results.append((post_status, new_sources))
+        return results
 
     def update_post_skip(self, post_id: str, skip_date: datetime.datetime) -> None:
         self._just_execute(

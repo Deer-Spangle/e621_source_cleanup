@@ -55,10 +55,10 @@ def login_post():
 
 
 def get_next_post() -> Optional[Tuple[PostStatusEntry, List[NewSourceEntry]]]:
-    next_data = db.get_next_unchecked_source()
-    if next_data is None:
+    new_data = db.get_next_unchecked_sources()
+    if not new_data:
         return None
-    post_status, new_sources = next_data
+    post_status, new_sources = next_data[0]
     return post_status, new_sources
 
 
