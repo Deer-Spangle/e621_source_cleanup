@@ -76,15 +76,14 @@ ${new_sources.map((source) => {
     }
 
     async function submitAction(post_id, source_ids, action) {
-        let resp = await fetch("/check", {
+        fetch("/check", {
                 body: `post_id=${post_id}&source_ids=${source_ids}&action=${action}`,
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",
                 },
                 method: "post",
             }
-        )
-        console.log(resp)
+        ).then((resp) => console.log(resp))
         console.log(action)
         document.getElementById(`post_id_${post_id}`).remove()
         check_and_add_more_posts()
