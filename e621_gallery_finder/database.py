@@ -107,7 +107,7 @@ class Database:
         ) as post_select:
             for row in post_select:
                 post_ids.append(row[0])
-                if len(post_ids) >= count):
+                if len(post_ids) >= count:
                     break
         results = []
         for post_id in post_ids:
