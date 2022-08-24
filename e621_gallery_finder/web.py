@@ -129,9 +129,12 @@ def list_next():
     results = []
     new_data = db.get_next_unchecked_sources(count=20)
     for post_status, new_sources in new_data:
+        resp = api.get_post(post_status.post_id)
+        post_status_json = post_status.to_json()
+        post_status_json["direct_link"] = resp["post"]["file"]["url"]
         results.append(
             {
-                "post_status": post_status.to_json(),
+                "post_status": post_status_json,
                 "new_sources": [
                     new_source.to_json() for new_source in new_sources
                 ]
