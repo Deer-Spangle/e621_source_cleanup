@@ -117,6 +117,15 @@ def check_match():
     )
 
 
+@app.route("/check_js")
+def check_js():
+    if flask.request.cookies["auth_key"] != AUTH_KEY:
+        return "Not logged in."
+    return flask.render_template(
+        "check_js.html"
+    )
+
+
 @app.route("/list_next.json")
 def list_next():
     if flask.request.cookies["auth_key"] != AUTH_KEY:

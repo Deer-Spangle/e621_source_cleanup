@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div id="container">
+    <div id="loading">Loading</div>
+</div>
+{% endblock %}
+
+
+
+{% block header_append %}
+<script>
+    const seen_posts = []
+
+    async function load_posts() {
+        const resp = await fetch("/list_next.json")
+        const data = await resp.json()
+        for (let result of data["data"]["results"]) {
+            add_post(result["post_status"], result["new_sources"])
+        }
+    }
+
+    function add_post(post_status, new_sources) {
+        const post_id = post_status["post_id"]
+        if (seen_posts.includes(post_id)) {
+            return
+        }
+        seen_posts.push(post_id)
+        render_post(post_status, new_sources)
+    }
+
+    function render_post(post_status, new_sources) {
+        const new_post_div = document.createElement("div")
+        new_post_div.setAttribute("class", "post_container")
+        new_post_div.setAttribute("id", `post_id_${post_status["post_id"]}`)
+        const post_id = post_status["post_id"]
+        const source_ids_str = new_sources.map((source) => source["source_id"]).join(",")
+        new_post_div.innerHTML = `Post: <a href="${post_status["post_link"]}">${post_status["post_id"]}</a><br />
+Last checked: ${post_status["last_checked"]}<br />
+Skipped: ${post_status["skip_date"]}<br />
+<br />
+<form>
+<input type="submit" onclick="submitAction(${post_id}, ${source_ids_str}, 'match_all'); return false" value="match_all" />
+<input type="submit" onclick="submitAction(${post_id}, ${source_ids_str}, 'skip'); return false" value="skip" />
+<input type="submit" onclick="submitAction(${post_id}, ${source_ids_str}, 'no_match'); return false" value="no_match" />
+</form>
+<table>
+<tr>
+<th>Original</th>
+${new_sources.map(() => "<th>New Source</th>").join("")}
+</tr>
+<tr>
+<td><a href="${post_status["post_link"]}">Post link</a></td>
+${new_sources.map((source) => {
+    if (!source["submission_link"]) {
+        return "<td>None</td>"
+    } else {
+        return "<td><a href='" + source["submission_link"] + "'>Link</a></td>"
+    }
+}).join("")}
+</tr>
+<tr>
+<td><img src="${post_status["direct_link"]}" /></td>
+${new_sources.map((source) => {
+    if(!source["direct_link"]) {
+        return "<td>No direct link</td>"
+    } else {
+        return "<td><img src='" + source["direct_link"] + "' onError=\"this.onError=null;this.src='" + source["direct_link_fallback"] + "'\" /></td>"
+    }
+}).join("")}
+</tr>
+</table>
+<hr />
+`
+        document.querySelector("#container").append(new_post_div)
+    }
+
+    async function submitAction(post_id, source_ids, action) {
+        let resp = await fetch("/check", {
+                body: `post_id=${post_id}&source_ids=${source_ids}&action=${action}`,
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                method: "post",
+            }
+        )
+        console.log(resp)
+        console.log(action)
+        document.getElementById(`post_id_${post_id}`).remove()
+        check_and_add_more_posts()
+    }
+
+    function check_and_add_more_posts() {
+        if (document.getElementsByClassName("post_container").length <= 5) {
+            load_posts()
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        load_posts()
+        document.getElementById("loading").remove()
+    })
+</script>
+{% endblock %}
