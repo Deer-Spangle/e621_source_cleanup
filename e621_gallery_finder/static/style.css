@@ -17,3 +17,9 @@ input[type=submit] {
     height: 5em;
     width: 15em;
 }
+.hidden {
+    display: none;
+}
+.error {
+    background-color: red;
+}

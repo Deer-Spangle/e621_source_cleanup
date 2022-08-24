@@ -80,6 +80,7 @@ ${new_sources.map((source) => {
     }
 
     async function submitAction(post_id, source_ids, action) {
+        const post_elem = document.getElementById(`post_id_${post_id}`)
         fetch("/check", {
                 body: `post_id=${post_id}&source_ids=${source_ids}&action=${action}`,
                 headers: {
@@ -87,9 +88,16 @@ ${new_sources.map((source) => {
                 },
                 method: "post",
             }
-        ).then((resp) => console.log(resp))
+        ).then((resp) => {
+                console.log(resp);
+                post_elem.remove()
+            }
+        ).catch(() => {
+            post_elem.classList.remove("hidden")
+            post_elem.classList.add("error")
+        })
         console.log(action)
-        document.getElementById(`post_id_${post_id}`).remove()
+        post_elem.classList.add("hidden")
         check_and_add_more_posts()
     }
 
