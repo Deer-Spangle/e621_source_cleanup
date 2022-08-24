@@ -138,10 +138,14 @@ def list_next():
     count = int(flask.request.args.get("count", default=20))
     results = []
     new_data = db.get_next_unchecked_sources(count=count)
+    post_ids = [datum[0].post_id for datum in new_data]
+    api_resp = api.get_posts(post_ids)
+    direct_links = {
+        post["id"]: post["file"]["url"] for post in api_resp["posts"]
+    }
     for post_status, new_sources in new_data:
-        resp = api.get_post(post_status.post_id)
         post_status_json = post_status.to_json()
-        post_status_json["direct_link"] = resp["post"]["file"]["url"]
+        post_status_json["direct_link"] = direct_links[post_status.post_id]
         results.append(
             {
                 "post_status": post_status_json,

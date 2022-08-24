@@ -48,6 +48,9 @@ class E621API:
     def get_post(self, post_id: str) -> Dict:
         return self._get(f"https://e621.net/posts/{post_id}.json")
 
+    def get_posts(self, post_ids: List[str]) -> Dict:
+        return self._get(f"https://e621.net/posts.json?tags=id%3A{'%2C'.join(post_ids)}+status%3Aany")
+
     def add_new_sources(self, post_id: str, new_source_links: List[str]) -> None:
         current_post = self.get_post(post_id)
         current_sources = current_post["post"]["sources"]
