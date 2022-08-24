@@ -60,6 +60,14 @@ class PostStatusEntry:
         if self.skip_date is None:
             return "None"
         return self.skip_date.isoformat()
+    
+    def to_json(self) -> Dict:
+        return {
+            "post_id": self.post_id,
+            "post_link": self.post_link,
+            "skip_date": self.skip_date_format,
+            "last_checked": self.last_checked.isoformat()
+        }
 
 
 @dataclasses.dataclass
@@ -73,3 +81,13 @@ class NewSourceEntry(NewSource):
         if self.direct_link is None:
             return None
         return "https://hotlink.spangle.org.uk/img/" + base64.b64encode(self.direct_link.encode()).decode()
+    
+    def to_json(self) -> Dict:
+        return {
+            "submission_link": self.submission_link,
+            "direct_link": self.direct_link,
+            "direct_link_fallback": self.direct_link_fallback,
+            "source_id": self.source_id,
+            "checked": self.checked,
+            "approved": self.approved
+        }

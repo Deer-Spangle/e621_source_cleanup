@@ -115,3 +115,30 @@ def check_match():
         new_sources=new_sources,
         post_direct_url=post_direct_url,
     )
+
+
+@app.route("/list_next.json")
+def list_next():
+    if flask.request.cookies["auth_key"] != AUTH_KEY:
+        return {
+            "error": {
+                "code": 403,
+                "message": "Not logged in"
+            }
+        }, 403
+    results = []
+    new_data = db.get_next_unchecked_sources(count=20)
+    for post_status, new_sources in new_data:
+        results.append(
+            {
+                "post_status": post_status.to_json(),
+                "new_sources": [
+                    new_source.to_json() for new_source in new_sources
+                ]
+            }
+        )
+    return {
+        "data": {
+            "results": results
+        }
+    }
