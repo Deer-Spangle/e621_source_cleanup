@@ -135,8 +135,9 @@ def list_next():
                 "message": "Not logged in"
             }
         }, 403
+    count = flask.request.args.get("count", default=20)
     results = []
-    new_data = db.get_next_unchecked_sources(count=20)
+    new_data = db.get_next_unchecked_sources(count=count)
     for post_status, new_sources in new_data:
         resp = api.get_post(post_status.post_id)
         post_status_json = post_status.to_json()

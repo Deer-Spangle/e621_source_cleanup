@@ -12,8 +12,8 @@
 <script>
     const seen_posts = []
 
-    async function load_posts() {
-        const resp = await fetch("/list_next.json")
+    async function load_posts(count = 20) {
+        const resp = await fetch(`/list_next.json?count=${count}`)
         const data = await resp.json()
         for (let result of data["data"]["results"]) {
             add_post(result["post_status"], result["new_sources"])
@@ -97,8 +97,7 @@ ${new_sources.map((source) => {
     }
 
     document.addEventListener("DOMContentLoaded", function () {
-        load_posts()
-        document.getElementById("loading").remove()
+        load_posts(7).then(() => document.getElementById("loading").remove())
     })
 </script>
 {% endblock %}
