@@ -23,7 +23,7 @@
     const seen_posts = []
     let updating = false
     let bouncing = false
-    let completed_ids = []
+    const completed_ids = []
 
     async function load_posts(count = 20) {
         if (updating) {
@@ -59,7 +59,7 @@
         const new_post_div = document.createElement("div")
         new_post_div.setAttribute("class", "post_container")
         new_post_div.setAttribute("id", `post_id_${post_status["post_id"]}`)
-        new_post_div.setAttribute("data-e621-post-id", post_id)
+        new_post_div.setAttribute("data-e621-post-id", post_status["post_id"])
         const post_id = post_status["post_id"]
         const source_ids_str = new_sources.map((source) => source["source_id"]).join(",")
         new_post_div.innerHTML = `Post: <a href="${post_status["post_link"]}">${post_status["post_id"]}</a><br />
