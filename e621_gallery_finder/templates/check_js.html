@@ -114,7 +114,9 @@ ${new_sources.map((source) => {
     }
 
     function check_and_add_more_posts() {
-        if (document.querySelectorAll(".post_container :not(.hidden)").length <= 5) {
+        const remaining_posts = document.querySelectorAll(".post_container:not(.hidden)").length
+        console.log(`There are ${remaining_posts} posts remaining on the page`)
+        if (remaining_posts <= 5) {
             load_posts()
         }
     }
