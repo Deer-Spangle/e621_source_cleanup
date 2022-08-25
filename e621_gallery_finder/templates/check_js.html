@@ -4,13 +4,15 @@
 <div id="status">
     <div id="completed">
         Completed this session: (<span id="completed_count">0</span>)
-        <div id="completed_toggle" class="toggle" onclick="toggle_list_prefix('completed')">Show list
+        <div class="toggle" onclick="toggle_list_prefix('completed')">
+            <span id="completed_toggle">Show list</span>
             <ul id="completed_list" class="hidden"></ul>
         </div>
     </div>
     <div id="pending">
         Currently pending: (<span id="pending_count">0</span>)
-        <div id="pending_toggle" class="toggle" onclick="toggle_list_prefix('pending')">Show list
+        <div class="toggle" onclick="toggle_list_prefix('pending')">
+            <span id="pending_toggle">Show list</span>
             <ul id="pending_list" class="hidden"></ul>
         </div>
     </div>
