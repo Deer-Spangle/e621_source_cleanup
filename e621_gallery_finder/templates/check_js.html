@@ -3,12 +3,16 @@
 {% block body %}
 <div id="status">
     <div id="completed">
-        Completed this session: (<span id="completed_count">0</span>) <div id="completed_toggle" class="toggle">Show list</div>
-        <ul id="completed_list" class="hidden"></ul>
+        Completed this session: (<span id="completed_count">0</span>)
+        <div id="completed_toggle" class="toggle" onclick="toggle_list_prefix('completed')">Show list
+            <ul id="completed_list" class="hidden"></ul>
+        </div>
     </div>
     <div id="pending">
-        Currently pending: (<span id="pending_count">0</span>) <div id="pending_toggle" class="toggle">Show list</div>
-        <ul id="pending_list" class="hidden"></ul>
+        Currently pending: (<span id="pending_count">0</span>)
+        <div id="pending_toggle" class="toggle" onclick="toggle_list_prefix('pending')">Show list
+            <ul id="pending_list" class="hidden"></ul>
+        </div>
     </div>
 </div>
 <div id="container">
@@ -162,18 +166,14 @@ ${new_sources.map((source) => {
         }
     }
 
+    function toggle_list_prefix(prefix) {
+        const toggle_elem = document.getElementById(`${prefix}_toggle`)
+        const list_elem = document.getElementById(`${prefix}_list`)
+        toggle_list(list_elem, toggle_elem)
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
         load_posts(7).then(() => document.getElementById("loading").remove())
-        document.getElementById("completed_toggle").onclick(() => {
-            const toggle_elem = document.getElementById("completed_toggle")
-            const list_elem = document.getElementById("completed_list")
-            toggle_list(list_elem, toggle_elem)
-        })
-        document.getElementById("pending_toggle").onclick(() => {
-            const toggle_elem = document.getElementById("pending_toggle")
-            const list_elem = document.getElementById("pending_list")
-            toggle_list(list_elem, toggle_elem)
-        })
     })
 </script>
 {% endblock %}
