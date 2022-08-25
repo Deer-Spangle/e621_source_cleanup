@@ -101,7 +101,13 @@ ${new_sources.map((source) => {
             }
         ).then((resp) => {
                 console.log(resp);
-                post_elem.remove()
+                if(resp.status === 200) {
+                    post_elem.remove()
+                } else {
+                    post_elem.querySelectorAll("input[type=submit]").forEach((elem) => elem.disabled = true)
+                    post_elem.classList.remove("hidden")
+                    post_elem.classList.add("error")
+                }
             }
         ).catch(() => {
             post_elem.querySelectorAll("input[type=submit]").forEach((elem) => elem.disabled = true)
