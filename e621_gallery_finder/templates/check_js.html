@@ -147,7 +147,7 @@ ${new_sources.map((source) => {
     function update_status() {
         document.getElementById("completed_count").textContent = completed_ids.length
         document.getElementById("completed_list").innerHTML = completed_ids.map((post_id) => `<li><a href="https://e621.net/posts/${post_id}">${post_id}</a></li>`).join("")
-        const pending_ids = document.querySelectorAll(".post_container.hidden").map((elem) => elem.getAttribute("data-e621-post-id"))
+        const pending_ids = Array.from(document.querySelectorAll(".post_container.hidden")).map((elem) => elem.getAttribute("data-e621-post-id"))
         document.getElementById("pending_count").textContent = pending_ids.length
         document.getElementById("pending_list").innerHTML = pending_ids.map((post_id) => `<li><a href="https://e621.net/posts/${post_id}">${post_id}</a></li>`).join("")
     }
