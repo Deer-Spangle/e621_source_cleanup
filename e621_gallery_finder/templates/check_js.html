@@ -114,7 +114,7 @@ ${new_sources.map((source) => {
     }
 
     function check_and_add_more_posts() {
-        if (document.getElementsByClassName("post_container").length <= 5) {
+        if (document.querySelectorAll(".post_container :not(.hidden)").length <= 5) {
             load_posts()
         }
     }
