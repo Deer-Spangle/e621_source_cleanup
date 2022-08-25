@@ -23,3 +23,6 @@ input[type=submit] {
 .error {
     background-color: red;
 }
+.toggle {
+    background-color: lightslategray;
+}
