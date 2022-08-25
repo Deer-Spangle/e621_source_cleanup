@@ -93,6 +93,7 @@ ${new_sources.map((source) => {
                 post_elem.remove()
             }
         ).catch(() => {
+            post_elem.querySelectorAll("input[type=submit]").forEach((elem) => elem.disabled = true)
             post_elem.classList.remove("hidden")
             post_elem.classList.add("error")
         })
