@@ -83,12 +83,12 @@ Skipped: ${post_status["skip_date"]}<br />
 ${new_sources.map(() => "<th>New Source</th>").join("")}
 </tr>
 <tr>
-<td><a href="${post_status["post_link"]}">Post link</a></td>
+<td><a href="${post_status["post_link"]}" target="_blank">Post link</a></td>
 ${new_sources.map((source) => {
     if (!source["submission_link"]) {
         return "<td>None</td>"
     } else {
-        return "<td><a href='" + source["submission_link"] + "'>Link</a></td>"
+        return "<td><a href='" + source["submission_link"] + "' target='_blank'>Link</a></td>"
     }
 }).join("")}
 </tr>
@@ -152,10 +152,10 @@ ${new_sources.map((source) => {
 
     function update_status() {
         document.getElementById("completed_count").textContent = completed_ids.length
-        document.getElementById("completed_list").innerHTML = completed_ids.map((post_id) => `<li><a href="https://e621.net/posts/${post_id}">${post_id}</a></li>`).join("")
+        document.getElementById("completed_list").innerHTML = completed_ids.map((post_id) => `<li><a href="https://e621.net/posts/${post_id}" target="_blank">${post_id}</a></li>`).join("")
         const pending_ids = Array.from(document.querySelectorAll(".post_container.hidden")).map((elem) => elem.getAttribute("data-e621-post-id"))
         document.getElementById("pending_count").textContent = pending_ids.length
-        document.getElementById("pending_list").innerHTML = pending_ids.map((post_id) => `<li><a href="https://e621.net/posts/${post_id}">${post_id}</a></li>`).join("")
+        document.getElementById("pending_list").innerHTML = pending_ids.map((post_id) => `<li><a href="https://e621.net/posts/${post_id}" target="_blank">${post_id}</a></li>`).join("")
     }
 
     function toggle_list(list_elem, toggle_elem) {
