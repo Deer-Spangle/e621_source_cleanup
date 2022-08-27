@@ -55,9 +55,9 @@ Last checked: ${post_status["last_checked"]}<br />
 Skipped: ${post_status["skip_date"]}<br />
 <br />
 <form>
-<input type="submit" onclick="submitAction(${post_id}, ${source_ids_str}, 'match_all'); return false" value="match_all" />
-<input type="submit" onclick="submitAction(${post_id}, ${source_ids_str}, 'skip'); return false" value="skip" />
-<input type="submit" onclick="submitAction(${post_id}, ${source_ids_str}, 'no_match'); return false" value="no_match" />
+<input type="submit" onclick="submitAction(${post_id}, '${source_ids_str}', 'match_all'); return false" value="match_all" />
+<input type="submit" onclick="submitAction(${post_id}, '${source_ids_str}', 'skip'); return false" value="skip" />
+<input type="submit" onclick="submitAction(${post_id}, '${source_ids_str}', 'no_match'); return false" value="no_match" />
 </form>
 <table>
 <tr>
