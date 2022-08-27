@@ -1,6 +1,22 @@
 {% extends 'base.html' %}
 
 {% block body %}
+<div id="status">
+    <div id="completed">
+        Completed this session: (<span id="completed_count">0</span>)
+        <div class="toggle" onclick="toggle_list_prefix('completed')">
+            <span id="completed_toggle">Show list</span>
+            <ul id="completed_list" class="hidden"></ul>
+        </div>
+    </div>
+    <div id="pending">
+        Currently pending: (<span id="pending_count">0</span>)
+        <div class="toggle" onclick="toggle_list_prefix('pending')">
+            <span id="pending_toggle">Show list</span>
+            <ul id="pending_list" class="hidden"></ul>
+        </div>
+    </div>
+</div>
 <div id="container">
     <div id="loading">Loading</div>
 </div>
@@ -13,6 +29,7 @@
     const seen_posts = []
     let updating = false
     let bouncing = false
+    const completed_ids = []
 
     async function load_posts(count = 20) {
         if (updating) {
@@ -48,6 +65,7 @@
         const new_post_div = document.createElement("div")
         new_post_div.setAttribute("class", "post_container")
         new_post_div.setAttribute("id", `post_id_${post_status["post_id"]}`)
+        new_post_div.setAttribute("data-e621-post-id", post_status["post_id"])
         const post_id = post_status["post_id"]
         const source_ids_str = new_sources.map((source) => source["source_id"]).join(",")
         new_post_div.innerHTML = `Post: <a href="${post_status["post_link"]}">${post_status["post_id"]}</a><br />
@@ -103,19 +121,24 @@ ${new_sources.map((source) => {
                 console.log(resp);
                 if(resp.status === 200) {
                     post_elem.remove()
+                    completed_ids.push(post_id)
+                    update_status()
                 } else {
                     post_elem.querySelectorAll("input[type=submit]").forEach((elem) => elem.disabled = true)
                     post_elem.classList.remove("hidden")
                     post_elem.classList.add("error")
+                    update_status()
                 }
             }
         ).catch(() => {
             post_elem.querySelectorAll("input[type=submit]").forEach((elem) => elem.disabled = true)
             post_elem.classList.remove("hidden")
             post_elem.classList.add("error")
+            update_status()
         })
         console.log(action)
         post_elem.classList.add("hidden")
+        update_status()
         check_and_add_more_posts()
     }
 
@@ -125,6 +148,30 @@ ${new_sources.map((source) => {
         if (remaining_posts <= 5) {
             load_posts()
         }
+    }
+
+    function update_status() {
+        document.getElementById("completed_count").textContent = completed_ids.length
+        document.getElementById("completed_list").innerHTML = completed_ids.map((post_id) => `<li><a href="https://e621.net/posts/${post_id}">${post_id}</a></li>`).join("")
+        const pending_ids = Array.from(document.querySelectorAll(".post_container.hidden")).map((elem) => elem.getAttribute("data-e621-post-id"))
+        document.getElementById("pending_count").textContent = pending_ids.length
+        document.getElementById("pending_list").innerHTML = pending_ids.map((post_id) => `<li><a href="https://e621.net/posts/${post_id}">${post_id}</a></li>`).join("")
+    }
+
+    function toggle_list(list_elem, toggle_elem) {
+        if (list_elem.classList.contains("hidden")) {
+            list_elem.classList.remove("hidden")
+            toggle_elem.innerText = "Hide list"
+        } else {
+            list_elem.classList.add("hidden")
+            toggle_elem.innerText = "Show list"
+        }
+    }
+
+    function toggle_list_prefix(prefix) {
+        const toggle_elem = document.getElementById(`${prefix}_toggle`)
+        const list_elem = document.getElementById(`${prefix}_list`)
+        toggle_list(list_elem, toggle_elem)
     }
 
     document.addEventListener("DOMContentLoaded", function () {
