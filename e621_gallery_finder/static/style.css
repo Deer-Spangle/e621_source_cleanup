@@ -28,7 +28,7 @@ input[type=submit] {
 }
 .small_gallery_image {
     width: 20%;
-    float: left;
+    display: inline-block;
     box-sizing: border-box;
     padding: 2%;
 }
