@@ -158,7 +158,7 @@ ${new_sources.map((source) => {
     function update_status() {
         document.getElementById("completed_count").textContent = completed_posts.length.toString()
         document.getElementById("completed_gallery").innerHTML = completed_posts.map((post_entry) => {
-            return `<a class="completed_post small_gallery_image">
+            return `<div class="completed_post small_gallery_image">
     <a href="https://e621.net/posts/${post_entry.post_id}">${post_entry.post_id}<br />
       <img src="${post_entry.direct_link}" />
     </a>
