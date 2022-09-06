@@ -6,14 +6,14 @@
         Completed this session: (<span id="completed_count">0</span>)
         <div class="toggle" onclick="toggle_list_prefix('completed')">
             <span id="completed_toggle">Show list</span>
-            <ul id="completed_list" class="hidden"></ul>
+            <div id="completed_gallery" class="hidden"></div>
         </div>
     </div>
     <div id="pending">
         Currently pending: (<span id="pending_count">0</span>)
         <div class="toggle" onclick="toggle_list_prefix('pending')">
             <span id="pending_toggle">Show list</span>
-            <ul id="pending_list" class="hidden"></ul>
+            <div id="pending_gallery" class="hidden"></div>
         </div>
     </div>
 </div>
@@ -156,8 +156,15 @@ ${new_sources.map((source) => {
     }
 
     function update_status() {
-        document.getElementById("completed_count").textContent = completed_posts.length
-        document.getElementById("completed_list").innerHTML = completed_posts.map((post_entry) => `<li><a href="https://e621.net/posts/${post_entry.post_id}" target="_blank">${post_entry.post_id}</a></li>`).join("")
+        document.getElementById("completed_count").textContent = completed_posts.length.toString()
+        document.getElementById("completed_gallery").innerHTML = completed_posts.map((post_entry) => {
+            return `<a class="completed_post small_gallery_image">
+    <a href="https://e621.net/posts/${post_entry.post_id}">${post_entry.post_id}<br />
+      <img src="${post_entry.direct_link}" />
+    </a>
+  </div>`
+        }).join("")
+
         const pending_posts = Array.from(document.querySelectorAll(".post_container.hidden"))
             .map((elem) => {
                 return {
@@ -165,8 +172,14 @@ ${new_sources.map((source) => {
                     "direct_link": elem.getAttribute("data-e621-direct-link")
                 }
             })
-        document.getElementById("pending_count").textContent = pending_posts.length
-        document.getElementById("pending_list").innerHTML = pending_posts.map(post_entry => `<li><a href="https://e621.net/posts/${post_entry.post_id}" target="_blank">${post_entry.post_id}</a></li>`).join("")
+        document.getElementById("pending_count").textContent = pending_posts.length.toString()
+        document.getElementById("pending_gallery").innerHTML = pending_posts.map(post_entry => {
+            return `<div class="pending_post small_gallery_image">
+    <a href="https://e621.net/posts/${post_entry.post_id}">${post_entry.post_id}<br />
+      <img src="${post_entry.direct_link}" />
+    </a>
+  </div>`
+        }).join("")
     }
 
     function toggle_list(list_elem, toggle_elem) {
@@ -181,7 +194,7 @@ ${new_sources.map((source) => {
 
     function toggle_list_prefix(prefix) {
         const toggle_elem = document.getElementById(`${prefix}_toggle`)
-        const list_elem = document.getElementById(`${prefix}_list`)
+        const list_elem = document.getElementById(`${prefix}_gallery`)
         toggle_list(list_elem, toggle_elem)
     }
 

@@ -26,3 +26,9 @@ input[type=submit] {
 .toggle {
     background-color: lightslategray;
 }
+.small_gallery_image {
+    width: 20%;
+    float: left;
+    box-sizing: border-box;
+    padding: 2%;
+}
