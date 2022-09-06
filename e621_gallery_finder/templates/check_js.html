@@ -29,7 +29,7 @@
     const seen_posts = []
     let updating = false
     let bouncing = false
-    const completed_ids = []
+    const completed_posts = []
 
     async function load_posts(count = 20) {
         if (updating) {
@@ -66,6 +66,7 @@
         new_post_div.setAttribute("class", "post_container")
         new_post_div.setAttribute("id", `post_id_${post_status["post_id"]}`)
         new_post_div.setAttribute("data-e621-post-id", post_status["post_id"])
+        new_post_div.setAttribute("data-e621-direct-link", post_status["direct_link"])
         const post_id = post_status["post_id"]
         const source_ids_str = new_sources.map((source) => source["source_id"]).join(",")
         new_post_div.innerHTML = `Post: <a href="${post_status["post_link"]}">${post_status["post_id"]}</a><br />
@@ -120,8 +121,12 @@ ${new_sources.map((source) => {
         ).then((resp) => {
                 console.log(resp);
                 if(resp.status === 200) {
+                    const direct_link = post_elem.getAttribute("data-e621-direct-link")
                     post_elem.remove()
-                    completed_ids.push(post_id)
+                    completed_posts.push({
+                        "post_id": post_id,
+                        "direct_link": direct_link,
+                    })
                     update_status()
                 } else {
                     post_elem.querySelectorAll("input[type=submit]").forEach((elem) => elem.disabled = true)
@@ -151,11 +156,17 @@ ${new_sources.map((source) => {
     }
 
     function update_status() {
-        document.getElementById("completed_count").textContent = completed_ids.length
-        document.getElementById("completed_list").innerHTML = completed_ids.map((post_id) => `<li><a href="https://e621.net/posts/${post_id}" target="_blank">${post_id}</a></li>`).join("")
-        const pending_ids = Array.from(document.querySelectorAll(".post_container.hidden")).map((elem) => elem.getAttribute("data-e621-post-id"))
-        document.getElementById("pending_count").textContent = pending_ids.length
-        document.getElementById("pending_list").innerHTML = pending_ids.map((post_id) => `<li><a href="https://e621.net/posts/${post_id}" target="_blank">${post_id}</a></li>`).join("")
+        document.getElementById("completed_count").textContent = completed_posts.length
+        document.getElementById("completed_list").innerHTML = completed_posts.map((post_entry) => `<li><a href="https://e621.net/posts/${post_entry.post_id}" target="_blank">${post_entry.post_id}</a></li>`).join("")
+        const pending_posts = Array.from(document.querySelectorAll(".post_container.hidden"))
+            .map((elem) => {
+                return {
+                    "post_id": elem.getAttribute("data-e621-post-id"),
+                    "direct_link": elem.getAttribute("data-e621-direct-link")
+                }
+            })
+        document.getElementById("pending_count").textContent = pending_posts.length
+        document.getElementById("pending_list").innerHTML = pending_posts.map(post_entry => `<li><a href="https://e621.net/posts/${post_entry.post_id}" target="_blank">${post_entry.post_id}</a></li>`).join("")
     }
 
     function toggle_list(list_elem, toggle_elem) {
